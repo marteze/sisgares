@@ -29,6 +29,11 @@
       <groupId>software.amazon.awssdk</groupId>
       <artifactId>dynamodb-enhanced</artifactId>
     </dependency>
+    <!-- Amazon Verified Permissions (Autorizador Cedar; versão pelo BOM do pom pai) -->
+    <dependency>
+      <groupId>software.amazon.awssdk</groupId>
+      <artifactId>verifiedpermissions</artifactId>
+    </dependency>
     <!-- Eventos/respostas do API Gateway HTTP API (versão no pom pai) -->
     <dependency>
       <groupId>com.amazonaws</groupId>

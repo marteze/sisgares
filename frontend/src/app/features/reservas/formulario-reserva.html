@@ -44,6 +44,52 @@
       </div>
     </dl>
 
+    <!-- Assistente: gera uma proposta que só pré-preenche o formulário; nunca salva (Req. 18.5, 18.8). -->
+    <section class="assistente" aria-labelledby="titulo-assistente">
+      <h3 id="titulo-assistente">Assistente</h3>
+      <p id="ajuda-assistente">Descreva a reserva em linguagem natural. A proposta só preenche o formulário; você revisa e salva.</p>
+      <mat-form-field appearance="outline" class="largo">
+        <mat-label>Descrição da reserva</mat-label>
+        <textarea matInput rows="3" [attr.maxlength]="limiteDescricao" [value]="descricaoAssistente()"
+                  (input)="alterarDescricao($any($event.target).value)"
+                  aria-describedby="ajuda-assistente contador-assistente"></textarea>
+        <mat-hint id="contador-assistente" align="end">{{ descricaoAssistente().length }}/{{ limiteDescricao }} caracteres</mat-hint>
+      </mat-form-field>
+      <div class="acoes">
+        <button mat-stroked-button type="button" (click)="gerarProposta()" [disabled]="consultandoAssistente()">
+          Gerar proposta
+        </button>
+      </div>
+      <p class="status" role="status" aria-live="polite">{{ avisoAssistente() }}</p>
+      @if (resumoProposta(); as r) {
+        <div class="proposta" aria-labelledby="titulo-proposta" role="group">
+          <h4 id="titulo-proposta">Proposta do assistente</h4>
+          <dl>
+            <div><dt>Ambiente</dt><dd>{{ r.ambiente }}</dd></div>
+            <div><dt>Data</dt><dd>{{ r.data }}</dd></div>
+            <div><dt>Horário</dt><dd>{{ r.horario }}</dd></div>
+            <div><dt>Participantes</dt><dd>{{ r.participantes }}</dd></div>
+            <div><dt>Finalidade</dt><dd>{{ r.finalidade }}</dd></div>
+            <div>
+              <dt>Recursos</dt>
+              <dd>
+                @for (x of r.recursos; track $index; let ultimo = $last) { {{ x }}@if (!ultimo) {, } } @empty { Nenhum }
+              </dd>
+            </div>
+          </dl>
+          @if (r.naoPreenchidos.length) {
+            <p>Campos não preenchidos pelo assistente (preencha manualmente):</p>
+            <ul>
+              @for (c of r.naoPreenchidos; track c) { <li>{{ c }}</li> }
+            </ul>
+          }
+          <div class="acoes">
+            <button mat-flat-button type="button" (click)="aplicarProposta()">Aplicar ao formulário</button>
+            <button mat-stroked-button type="button" (click)="descartarProposta()">Descartar proposta</button>
+          </div>
+        </div>
+      }
+    </section>
     <form [formGroup]="form" (ngSubmit)="salvar()" novalidate aria-describedby="resumo-erros">
       <fieldset>
         <legend>Local</legend>

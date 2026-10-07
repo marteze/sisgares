@@ -20,6 +20,7 @@ import {
   salvarDemo,
   verificarDemo,
 } from './dados-demonstracao';
+import { AssistenteService, LIMITE_DESCRICAO, ROTULOS_CAMPOS, RespostaAssistente } from './assistente.service';
 import { DadosDialogoCancelamento, DialogoCancelamento } from './dialogo-cancelamento';
 import { formatarDataHora } from './formatacao';
 import {
@@ -97,6 +98,7 @@ export class FormularioReserva {
   private readonly destroyRef = inject(DestroyRef);
   private readonly fb = inject(NonNullableFormBuilder);
   private readonly dialogo = inject(MatDialog);
+  private readonly assistente = inject(AssistenteService);
 
   protected readonly LOCAL_PROPRIO = LOCAL_PROPRIO;
   protected readonly textoStatus = TEXTO_STATUS;
@@ -597,6 +599,106 @@ export class FormularioReserva {
 
   private focarResumo(): void {
     queueMicrotask(() => document.getElementById('resumo-erros')?.focus());
+  }
+
+  // ---------- Assistente (Req. 18.5, 18.8) ----------
+
+  protected readonly limiteDescricao = LIMITE_DESCRICAO;
+  protected readonly descricaoAssistente = signal('');
+  protected readonly consultandoAssistente = signal(false);
+  protected readonly respostaAssistente = signal<RespostaAssistente | null>(null);
+  /** Aviso do Assistente (indisponibilidade, aplicação etc.), anunciado em `aria-live`. */
+  protected readonly avisoAssistente = signal('');
+
+  /** Resumo legível da proposta para revisão antes de aplicar. */
+  protected readonly resumoProposta = computed(() => {
+    const r = this.respostaAssistente();
+    if (!r) return null;
+    const p = r.proposta ?? {};
+    const amb = p.ambienteId != null ? this.ambientes().find((a) => a.id === String(p.ambienteId)) : undefined;
+    const [a, m, d] = (p.data ?? '').split('-');
+    return {
+      ambiente: amb?.nome ?? (p.ambienteId != null ? 'Ambiente não encontrado no catálogo' : '—'),
+      data: p.data ? `${d}/${m}/${a}` : '—',
+      horario: p.inicio ? `${p.inicio}${p.termino ? '–' + p.termino : ''}` : '—',
+      participantes: p.participantes ?? '—',
+      finalidade: p.finalidade || '—',
+      recursos: (p.recursos ?? []).map((s) => {
+        const rec = this.recursosCatalogo().find((x) => x.id === String(s.recursoId));
+        return `${rec?.descricao ?? 'Recurso ' + s.recursoId} (${s.quantidade})`;
+      }),
+      naoPreenchidos: (r.camposNaoPreenchidos ?? []).map((c) => ROTULOS_CAMPOS[c] ?? c),
+    };
+  });
+
+  protected alterarDescricao(valor: string): void {
+    this.descricaoAssistente.set(valor.slice(0, LIMITE_DESCRICAO));
+  }
+
+  protected gerarProposta(): void {
+    const descricao = this.descricaoAssistente().trim();
+    if (!descricao) {
+      this.avisoAssistente.set('Descreva a reserva desejada antes de gerar a proposta.');
+      return;
+    }
+    this.consultandoAssistente.set(true);
+    this.respostaAssistente.set(null);
+    this.avisoAssistente.set('Gerando proposta…');
+    this.assistente
+      .propor(descricao)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (r) => {
+          this.consultandoAssistente.set(false);
+          this.respostaAssistente.set(r);
+          this.avisoAssistente.set('Proposta gerada. Revise o resumo e use "Aplicar ao formulário" para preencher os campos.');
+        },
+        error: (e: unknown) => {
+          this.consultandoAssistente.set(false);
+          const indisponivel =
+            e instanceof HttpErrorResponse && (e.status === 503 || e.error?.erros?.[0]?.codigo === 'ASSISTENTE_INDISPONIVEL');
+          this.avisoAssistente.set(
+            indisponivel
+              ? 'O assistente está indisponível no momento. Preencha o formulário manualmente.'
+              : 'Não foi possível gerar a proposta. Preencha o formulário manualmente ou tente novamente.',
+          );
+        },
+      });
+  }
+
+  /** Preenche o formulário com a proposta; o usuário ainda revisa e salva (o Assistente nunca salva). */
+  protected aplicarProposta(): void {
+    const p = this.respostaAssistente()?.proposta;
+    if (!p) return;
+    const amb = p.ambienteId != null ? String(p.ambienteId) : null;
+    if (amb && this.ambientesAtivos().some((a) => a.id === amb)) this.form.controls.ambienteId.setValue(amb);
+    if (p.finalidade) this.form.controls.finalidade.setValue(p.finalidade);
+    if (p.participantes != null) this.form.controls.participantes.setValue(p.participantes);
+    if (p.data && p.inicio) {
+      const inicio = `${p.data}T${p.inicio}`;
+      const termino = p.termino ? `${p.data}T${p.termino}` : somarMinutos(inicio, 60);
+      const primeiro = this.periodos.at(0);
+      if (primeiro) {
+        primeiro.setValue({ inicio, termino });
+        this.verificarPeriodo(primeiro);
+      } else {
+        this.adicionarPeriodo({ inicio, termino });
+      }
+    }
+    if (p.recursos?.length) {
+      const ambAtual = this.form.controls.ambienteId.value;
+      this.recursos.clear();
+      for (const s of p.recursos) {
+        const r = this.recursosCatalogo().find((x) => x.id === String(s.recursoId));
+        if (r && this.permitido(r, ambAtual)) this.recursos.push(this.novoRecurso(r.id, r.limitado ? s.quantidade : null));
+      }
+    }
+    this.avisoAssistente.set('Proposta aplicada ao formulário. Revise os campos e salve para confirmar a reserva.');
+  }
+
+  protected descartarProposta(): void {
+    this.respostaAssistente.set(null);
+    this.avisoAssistente.set('Proposta descartada.');
   }
 
   protected nomeSolicitante(): string {

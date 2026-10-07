@@ -1,11 +1,17 @@
 package br.mp.mpf.sisgares.reservas;
 
+import br.mp.mpf.sisgares.comumaws.auth.Acao;
+import br.mp.mpf.sisgares.comumaws.auth.Autorizador;
+import br.mp.mpf.sisgares.comumaws.auth.AutorizadorLocal;
 import br.mp.mpf.sisgares.comumaws.auth.Principal;
+import br.mp.mpf.sisgares.comumaws.auth.RecursoAutorizacao;
 import br.mp.mpf.sisgares.comumaws.dynamo.Chaves;
 import br.mp.mpf.sisgares.comumaws.http.ExcecaoAcessoNegado;
 import br.mp.mpf.sisgares.comumaws.http.ExcecaoNaoEncontrado;
 import br.mp.mpf.sisgares.comumaws.http.ExcecaoValidacao;
+import br.mp.mpf.sisgares.comumaws.http.ExcecaoConflitoConcorrente;
 import br.mp.mpf.sisgares.comumaws.http.LogEstruturado;
+import br.mp.mpf.sisgares.comumaws.http.Metricas;
 import br.mp.mpf.sisgares.comumaws.repositorio.EventoOutbox;
 import br.mp.mpf.sisgares.comumaws.repositorio.GravadorReservas;
 import br.mp.mpf.sisgares.dominio.Ambiente;
@@ -52,12 +58,14 @@ import java.util.UUID;
  * Casos de uso de {@code /api/reservas}: orquestra leitura, validação no domínio e gravação atômica.
  *
  * <p>Regras de negócio (RN1–RN13) ficam no {@link ValidadorReserva}; aqui só se monta o
- * {@link ContextoValidacao}, aplica-se a autorização simplificada (o Cedar entra na tarefa 15.2) e
+ * {@link ContextoValidacao}, aplica-se a autorização Cedar ({@link Autorizador}, Req. 5.5/5.6) e
  * grava-se via {@link PortaReservas}. O evento é gravado no outbox na mesma transação e, após o
  * commit, publicado pelo {@link PublicadorEventos} e removido do outbox; se a publicação falhar, o
  * {@link RepublicadorOutbox} tenta de novo (Req. 2.3, 2.8).
  *
- * <p>Autorização simplificada:
+ * <p>Antes de cada operação o {@link Autorizador} avalia a ação Cedar (CriarReserva,
+ * ConsultarReserva, AlterarReserva, CancelarReserva). As verificações simplificadas abaixo
+ * permanecem como salvaguarda (ambas precisam permitir):
  * <ul>
  *   <li>Solicitante altera, cancela e vê versões somente das próprias Reservas;</li>
  *   <li>Administrador acessa as Reservas da mesma Unidade_Macro;</li>
@@ -92,6 +100,8 @@ public final class ServicoReservas {
     private final ValidadorReserva validador = new ValidadorReserva();
     private final DetectorConflito detector = new DetectorConflito();
     private final CalculadoraStatus calculadoraStatus;
+    private final Autorizador autorizador;
+    private final Metricas metricas;
 
     /**
      * Fonte do nome do Solicitante. O modelo atual não persiste nomes; a implementação padrão
@@ -116,8 +126,16 @@ public final class ServicoReservas {
         this(reservas, catalogo, relogio, resolvedorNome, null, new LogEstruturado(relogio, "reservas"));
     }
 
+    /** Construtor com {@link AutorizadorLocal} (políticas Cedar reproduzidas em Java). */
     public ServicoReservas(PortaReservas reservas, PortaCatalogo catalogo, Clock relogio,
                            ResolvedorNome resolvedorNome, PublicadorEventos publicador, LogEstruturado log) {
+        this(reservas, catalogo, relogio, resolvedorNome, publicador, log, new AutorizadorLocal());
+    }
+
+    public ServicoReservas(PortaReservas reservas, PortaCatalogo catalogo, Clock relogio,
+                           ResolvedorNome resolvedorNome, PublicadorEventos publicador, LogEstruturado log,
+                           Autorizador autorizador) {
+        this.autorizador = Objects.requireNonNull(autorizador, "autorizador");
         this.reservas = Objects.requireNonNull(reservas, "reservas");
         this.catalogo = Objects.requireNonNull(catalogo, "catalogo");
         this.relogio = Objects.requireNonNull(relogio, "relogio");
@@ -125,6 +143,7 @@ public final class ServicoReservas {
         this.log = Objects.requireNonNull(log, "log");
         this.publicador = publicador != null ? publicador : PublicadorEventos.nulo(this.log);
         this.calculadoraStatus = new CalculadoraStatus(relogio);
+        this.metricas = new Metricas(relogio);
     }
 
     // ---------- Casos de uso ----------
@@ -136,6 +155,8 @@ public final class ServicoReservas {
             throw new ExcecaoAcessoNegado("Somente solicitantes podem cadastrar reservas.");
         }
         Reserva candidata = ConversorReserva.paraDominio(req, principal);
+        // Cedar criar-reserva: em nome próprio e na própria Unidade_Macro (Req. 5.5); setores não influem
+        autorizador.exigir(principal, Acao.CRIAR_RESERVA, recurso(candidata, Set.of()));
         Preparacao prep = preparar(candidata, null);
         List<Violacao> violacoes = new ArrayList<>(prep.violacoesEntrada());
         violacoes.addAll(validador.validar(candidata, prep.contexto()));
@@ -149,7 +170,9 @@ public final class ServicoReservas {
         Reserva nova = copiar(candidata, id, candidata.unidade(), candidata.solicitante(), periodos,
                 false, null, agora, 1L);
         EventoOutbox evento = evento(EVENTO_CRIADA, nova);
-        reservas.gravar(nova, agora, prep.raizId(), prep.setores(), prep.versoesCtrl(), null, evento);
+        gravarComMetrica(() -> reservas.gravar(nova, agora, prep.raizId(), prep.setores(), prep.versoesCtrl(),
+                null, evento));
+        metricas.contar(Metricas.RESERVA_CRIADA);
         publicarAposCommit(evento);
         return resposta(nova, principal);
     }
@@ -179,6 +202,7 @@ public final class ServicoReservas {
     public ReservaResposta obter(long id, Principal principal) {
         exigirAutenticado(principal);
         Reserva r = carregar(id);
+        exigirCedar(principal, Acao.CONSULTAR_RESERVA, r);
         if (!podeVer(r, principal)) {
             throw new ExcecaoAcessoNegado("Você não tem permissão para ver esta reserva.");
         }
@@ -189,6 +213,7 @@ public final class ServicoReservas {
     public ReservaResposta alterar(long id, ReservaAlteracaoRequisicao req, Principal principal) {
         exigirAutenticado(principal);
         Reserva anterior = carregar(id);
+        exigirCedar(principal, Acao.ALTERAR_RESERVA, anterior);
         exigirPodeAlterar(anterior, principal);
         // paraDominio aplica Bean Validation; corpo ausente vira 422
         Reserva convertida = ConversorReserva.paraDominio(req == null ? null : req.paraRequisicao(), principal,
@@ -207,8 +232,8 @@ public final class ServicoReservas {
         Reserva nova = copiar(candidata, id, candidata.unidade(), candidata.solicitante(),
                 atribuirIdsPeriodos(candidata.periodos()), false, null, agora, anterior.versao() + 1);
         EventoOutbox evento = evento(EVENTO_ALTERADA, nova);
-        reservas.gravar(nova, criadoEm(id, agora), prep.raizId(), prep.setores(), prep.versoesCtrl(),
-                anterior.versao(), evento);
+        gravarComMetrica(() -> reservas.gravar(nova, criadoEm(id, agora), prep.raizId(), prep.setores(),
+                prep.versoesCtrl(), anterior.versao(), evento));
         publicarAposCommit(evento);
         return resposta(nova, principal);
     }
@@ -217,6 +242,7 @@ public final class ServicoReservas {
     public ReservaResposta cancelar(long id, CancelamentoRequisicao req, Principal principal) {
         exigirAutenticado(principal);
         Reserva anterior = carregar(id);
+        exigirCedar(principal, Acao.CANCELAR_RESERVA, anterior);
         exigirPodeAlterar(anterior, principal);
         // O ContextoValidacao do cancelamento só precisa de relógio e Configuração
         ContextoValidacao ctx = new ContextoValidacao(relogio, catalogo.configuracao(), null, null,
@@ -239,8 +265,8 @@ public final class ServicoReservas {
         Reserva cancelada = copiar(anterior, id, anterior.unidade(), anterior.solicitante(), anterior.periodos(),
                 true, agora, agora, anterior.versao() + 1);
         EventoOutbox evento = evento(EVENTO_CANCELADA, cancelada);
-        reservas.gravar(cancelada, criadoEm(id, agora), raizId, setoresEnvolvidos(anterior, recursos.keySet()),
-                versoesCtrl, anterior.versao(), evento);
+        gravarComMetrica(() -> reservas.gravar(cancelada, criadoEm(id, agora), raizId,
+                setoresEnvolvidos(anterior, recursos.keySet()), versoesCtrl, anterior.versao(), evento));
         publicarAposCommit(evento);
         return resposta(cancelada, principal);
     }
@@ -284,6 +310,7 @@ public final class ServicoReservas {
     public List<VersaoResposta> versoes(long id, Principal principal) {
         exigirAutenticado(principal);
         Reserva atual = carregar(id);
+        exigirCedar(principal, Acao.CONSULTAR_RESERVA, atual);
         exigirPodeAlterar(atual, principal);
         List<VersaoReserva> lista = reservas.versoes(id);
         List<VersaoResposta> resultado = new ArrayList<>(lista.size());
@@ -488,7 +515,24 @@ public final class ServicoReservas {
                 alteradaEm, versao);
     }
 
-    // ---------- Autorização (simplificada até a tarefa 15.2) ----------
+    // ---------- Autorização ----------
+
+    /** Avalia a ação Cedar sobre a Reserva persistida; negação vira 403 ACESSO_NEGADO. */
+    private void exigirCedar(Principal p, Acao acao, Reserva r) {
+        Set<Long> recursoIds = new LinkedHashSet<>();
+        r.solicitacoes().forEach(s -> recursoIds.add(s.recursoId()));
+        autorizador.exigir(p, acao, recurso(r, setoresEnvolvidos(r, recursoIds)));
+    }
+
+    /** Entidade Cedar {@code Sisgares::Reserva} (dono, unidade, setores). Sem id na criação. */
+    private static RecursoAutorizacao recurso(Reserva r, Set<Long> setores) {
+        Set<String> ids = new LinkedHashSet<>();
+        setores.forEach(s -> ids.add(String.valueOf(s)));
+        return new RecursoAutorizacao(r.id() == null ? "nova" : String.valueOf(r.id()), r.solicitante(),
+                r.unidade(), ids);
+    }
+
+    // Verificações simplificadas mantidas como salvaguarda além do Cedar
 
     private static boolean ehAdministrador(Principal p) {
         return p.pertenceA(GRUPO_ADMINISTRADOR);
@@ -552,9 +596,38 @@ public final class ServicoReservas {
         return LocalDateTime.ofInstant(relogio.instant(), ConstantesDominio.ZONA);
     }
 
-    private static void lancarSeHouver(List<Violacao> violacoes) {
+    /** Lança 422 com todas as violações, publicando antes as métricas de bloqueio (Req. 21.2). */
+    private void lancarSeHouver(List<Violacao> violacoes) {
         if (!violacoes.isEmpty()) {
+            registrarMetricasBloqueio(violacoes);
             throw new ExcecaoValidacao(violacoes);
+        }
+    }
+
+    /** Uma métrica por regra distinta: {@code Conflito} para RN5/RN6, {@code ViolacaoValidacao} para as demais. */
+    private void registrarMetricasBloqueio(List<Violacao> violacoes) {
+        Set<String> conflitos = new LinkedHashSet<>();
+        Set<String> outras = new LinkedHashSet<>();
+        for (Violacao v : violacoes) {
+            if (CodigosRegra.RN5_CONFLITO_HORARIO.equals(v.codigo())) {
+                conflitos.add("RN5");
+            } else if (CodigosRegra.RN6_CONFLITO_PAI_FILHO.equals(v.codigo())) {
+                conflitos.add("RN6");
+            } else if (v.codigo() != null) {
+                outras.add(v.codigo());
+            }
+        }
+        conflitos.forEach(r -> metricas.contar(Metricas.CONFLITO, Metricas.DIMENSAO_REGRA, r));
+        outras.forEach(c -> metricas.contar(Metricas.VIOLACAO_VALIDACAO, Metricas.DIMENSAO_REGRA, c));
+    }
+
+    /** Executa a gravação; a falha da condição otimista conta como {@code Conflito Regra=RN7}. */
+    private void gravarComMetrica(Runnable gravacao) {
+        try {
+            gravacao.run();
+        } catch (ExcecaoConflitoConcorrente e) {
+            metricas.contar(Metricas.CONFLITO, Metricas.DIMENSAO_REGRA, "RN7");
+            throw e;
         }
     }
 

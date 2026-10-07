@@ -8,15 +8,25 @@ Ordem de implantação: segurança → dados → eventos → api → front.
 
 | Stack | Conteúdo | Estado |
 |---|---|---|
-| `SisgaresSegurancaStack` | CMK KMS e CloudTrail com bucket de logs | Definida |
-| `SisgaresDadosStack` | Tabela DynamoDB single-table (CMK) e buckets `BucketFrontend`, `BucketSeed`, `BucketImagens` e `BucketExportacoes` | Definida |
-| `SisgaresEventosStack` | EventBridge, Step Functions, SQS/DLQ, SES | Vazia (em implementação) |
-| `SisgaresApiStack` | API Gateway, Lambdas, Cognito, Verified Permissions (`cedar/`) | Vazia (em implementação) |
-| `SisgaresFrontStack` | CloudFront com OAC e WAF | Vazia (em implementação) |
+| `SisgaresSegurancaStack` | CMK KMS, CloudTrail com bucket de logs, Cognito User Pool (cliente, domínio e 3 grupos) | Definida e sintetiza |
+| `SisgaresDadosStack` | Tabela DynamoDB single-table (CMK), buckets `BucketFrontend`, `BucketSeed`, `BucketImagens` e `BucketExportacoes`, parâmetros SSM | Definida e sintetiza |
+| `SisgaresEventosStack` | EventBridge, Step Functions, SQS (DLQ), SNS, 4 Lambdas, alarmes e dashboard do CloudWatch | Definida e sintetiza |
+| `SisgaresApiStack` | HTTP API (API Gateway v2) com autorizador JWT do Cognito, 17 rotas, 6 Lambdas, Verified Permissions (`cedar/`, 7 políticas) | Definida e sintetiza |
+| `SisgaresFrontStack` | CloudFront com OAC e WAF, envio do SPA, de `data/` e `imagens/`, recurso customizado do Importador_Seed, identidade SES opcional | Definida e sintetiza |
+
+`npx -y aws-cdk@2.170.0 synth --quiet` gera os 5 templates em `cdk.out/` sem erros. Nenhum deploy foi feito.
 
 ## Pré-requisitos
 
-- JDK 21 e Maven 3.9+. O `cdk.json` roda `mvn -e -q compile exec:java`. Não estão instalados na máquina de desenvolvimento atual, então os comandos abaixo ainda não foram executados nela.
+- JDK 21 e Maven 3.9+, instalados via Homebrew. O `cdk.json` roda `mvn -e -q compile exec:java`. Antes dos comandos CDK, exporte:
+
+  ```bash
+  export JAVA_HOME=/opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home
+  export PATH=/opt/homebrew/opt/openjdk@21/bin:$PATH
+  ```
+
+- O synth empacota artefatos já gerados: os jars das Lambdas (`cd backend && mvn -q package -DskipTests`) e o build do frontend (`cd frontend && npm run build`, saída em `frontend/dist/sisgares/browser`). Gere os dois antes do synth.
+- Execução local com SAM e DynamoDB Local: exige Docker e AWS SAM CLI, que não estão instalados na máquina atual. Veja `infra/local/README.md`.
 - AWS CLI v2 e AWS CDK CLI (`npm install -g aws-cdk` ou `npx aws-cdk`).
 - Profile `hackaton` com credenciais válidas. Nunca grave chaves em arquivos do projeto.
 
@@ -40,8 +50,11 @@ cdk bootstrap --profile hackaton
 ## 3. Build do backend e deploy
 
 ```bash
-# Empacota as Lambdas (quando as stacks de API e eventos estiverem prontas)
+aws sts get-caller-identity --profile hackaton   # obrigatório antes de qualquer deploy
+
+# Empacota as Lambdas e o frontend
 cd backend && mvn -q package -DskipTests && cd ..
+cd frontend && npm run build -- --configuration nuvem && cd ..
 
 cd infra
 cdk synth --profile hackaton
@@ -50,6 +63,8 @@ cdk deploy --all --profile hackaton
 ```
 
 ## 4. Envio do seed (CSVs e ícones)
+
+O `cdk deploy` da `SisgaresFrontStack` já envia `data/` e `imagens/` e aciona o Importador_Seed por recurso customizado a cada deploy. Os comandos abaixo servem para reenviar manualmente.
 
 Envie os 10 CSVs de `data/` para o bucket de seed e os ícones de `imagens/` para o bucket de imagens. Os nomes físicos dos buckets são gerados pelo CloudFormation:
 
@@ -72,7 +87,7 @@ aws s3 sync imagens/ "s3://${BUCKET_IMAGENS}/" --exclude "*.md" \
   --region us-east-1 --profile hackaton
 ```
 
-Cada CSV gravado no bucket de seed aciona o Importador_Seed. Ele carrega os registros no DynamoDB preservando os IDs originais e é idempotente, então reenviar não duplica dados. O importador entra na `SisgaresApiStack`/`SisgaresEventosStack`, ainda em implementação.
+Cada CSV gravado no bucket de seed aciona o Importador_Seed. Ele carrega os registros no DynamoDB preservando os IDs originais e é idempotente, então reenviar não duplica dados.
 
 Para conferir o envio:
 
@@ -90,7 +105,7 @@ npm ci
 npm run build -- --configuration nuvem
 ```
 
-A publicação no `BucketFrontend` e a invalidação do CloudFront ficam com a `SisgaresFrontStack` (em implementação).
+A publicação no `BucketFrontend` e a invalidação do CloudFront ficam com a `SisgaresFrontStack` (`BucketDeployment` de `frontend/dist/sisgares/browser`), no próximo `cdk deploy`.
 
 ## 6. Destroy: operação destrutiva
 

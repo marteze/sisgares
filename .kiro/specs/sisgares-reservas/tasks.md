@@ -116,7 +116,7 @@ Implementação incremental em Java 21 (Maven multimódulo), Angular e AWS CDK (
     - **Property 8: Round-trip do CSV**
     - **Validates: Requirements 4.3, 4.4, 17.4, 22.3**
 
-- [ ] 8. Checkpoint - Núcleo_Domínio
+- [x] 8. Checkpoint - Núcleo_Domínio
   - Rodar `mvn -pl dominio test` em `backend/` sem acesso à AWS. Ensure all tests pass, ask the user if questions arise.
 
 - [x] 9. Implementar repositórios DynamoDB em `comum-aws`
@@ -177,7 +177,7 @@ Implementação incremental em Java 21 (Maven multimódulo), Angular e AWS CDK (
     - IDs com ponto de milhar, linhas rejeitadas no relatório, ícones ambíguos/não encontrados
     - _Requirements: 4.10, 4.11, 22.11_
 
-- [ ] 13. Checkpoint - Backend de reservas, painéis e seed
+- [x] 13. Checkpoint - Backend de reservas, painéis e seed
   - Rodar `mvn test` e `mvn package` em `backend/`. Ensure all tests pass, ask the user if questions arise.
 
 - [x] 14. Implementar o fluxo de eventos
@@ -200,11 +200,11 @@ Implementação incremental em Java 21 (Maven multimódulo), Angular e AWS CDK (
     - Barramento `sisgares-bus`, regra `Reserva*`, Step Functions com ramos paralelos (retry 3x, 2 s, ×2), SQS DLQ com KMS, agendamento do republicador
     - _Requirements: 2.4, 2.5, 2.7, 23.1_
 
-- [ ] 15. Implementar autenticação Cognito e autorização Verified Permissions/Cedar
+- [x] 15. Implementar autenticação Cognito e autorização Verified Permissions/Cedar
   - [x] 15.1 Escrever as políticas Cedar em `infra/cedar/` e o schema
     - Dono altera/cancela; Atendente consulta reservas do seu setor; Admin restrito à própria Unidade_Macro; cadastros e Configuração só Admin
     - _Requirements: 5.5, 5.7, 5.8, 5.9, 5.10_
-  - [ ] 15.2 Implementar o Autorizador em `comum-aws` e aplicá-lo nos handlers de reservas e painéis
+  - [x] 15.2 Implementar o Autorizador em `comum-aws` e aplicá-lo nos handlers de reservas e painéis
     - Chamada ao AVP `IsAuthorized` com principal (grupo, unidade, setor) e recurso; negação → 403 `ACESSO_NEGADO`
     - _Requirements: 5.5, 5.6_
   - [x] 15.3 Definir Cognito no CDK e mock local de JWT
@@ -214,7 +214,7 @@ Implementação incremental em Java 21 (Maven multimódulo), Angular e AWS CDK (
     - Matriz perfil × dono/setor/unidade
     - _Requirements: 5.7, 5.8, 5.9, 5.10_
 
-- [ ] 16. Checkpoint - Eventos e autorização
+- [x] 16. Checkpoint - Eventos e autorização
   - Rodar `mvn test` em `backend/` e `mvn package` + `cdk synth` em `infra/`. Ensure all tests pass, ask the user if questions arise.
 
 - [x] 17. Implementar a base do frontend e o login
@@ -248,7 +248,7 @@ Implementação incremental em Java 21 (Maven multimódulo), Angular e AWS CDK (
   - [ ]* 20.3 Escrever testes Playwright com axe-core em 360 e 1920 px
     - _Requirements: 20.1, 20.2, 20.3, 20.4_
 
-- [ ] 21. Implementar a infraestrutura CDK com segurança
+- [x] 21. Implementar a infraestrutura CDK com segurança
   - [x] 21.1 Implementar `SegurancaStack` e `DadosStack`
     - KMS CMK; tabela `sisgares` com GSI1–GSI5, PITR, TTL `expiraEm`; buckets (frontend, seed, imagens, exportações) com SSE-KMS e Block Public Access; CloudTrail; parâmetros SSM
     - _Requirements: 3.7, 3.8, 6.9, 6.10, 6.12, 6.15, 6.18, 23.1_
@@ -261,47 +261,47 @@ Implementação incremental em Java 21 (Maven multimódulo), Angular e AWS CDK (
   - [ ]* 21.4 Escrever testes CDK assertions + cdk-nag
     - KMS em tabelas/buckets/filas, OAC, WAF, ausência de `*` em escrita, TLS
     - _Requirements: 6.1, 6.9, 6.10, 6.11, 6.13_
-  - [ ] 21.5 Criar template SAM local e `docker-compose` com DynamoDB Local
+  - [x] 21.5 Criar template SAM local e `docker-compose` com DynamoDB Local
     - _Requirements: 1.7_
 
-- [ ] 22. Checkpoint - Frontend e infraestrutura
+- [x] 22. Checkpoint - Frontend e infraestrutura
   - Rodar `mvn test` em `backend/`, `npm run build` e `npm test -- --watch=false` em `frontend/`, `cdk synth` em `infra/`. Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 23. Implementar cadastros e configuração (Desejável)
-  - [ ] 23.1 Implementar a Lambda de catálogo
+- [x] 23. Implementar cadastros e configuração (Desejável)
+  - [x] 23.1 Implementar a Lambda de catálogo
     - CRUD e inativação de Setor, Ambiente (pai via ArvoreAmbientes), Disposição (upload PNG/JPEG/SVG sanitizado ≤ 2 MB), Grupo e Recurso (limitado ≥ 1); vínculos EAMB/EREC/VREC; e-mails válidos; inativos fora das opções de reserva
     - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.5, 7.6, 7.7, 7.8, 7.9, 7.11, 7.12, 7.13, 7.14_
-  - [ ] 23.2 Implementar a Lambda de configuração
+  - [x] 23.2 Implementar a Lambda de configuração
     - Antecedência 0–10080, faixas global/por unidade (mín < máx), URL do SNP `https://` (`http://` só local)
     - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5, 8.6_
   - [ ]* 23.3 Escrever testes dos handlers de catálogo e configuração
     - _Requirements: 7.3, 7.5, 7.8, 7.12, 8.3, 8.5_
-  - [ ] 23.4 Criar telas `/cadastros/*` e `/configuracao` no frontend
+  - [x] 23.4 Criar telas `/cadastros/*` e `/configuracao` no frontend
     - _Requirements: 7.1, 7.10, 8.1, 8.2, 8.4_
 
-- [ ] 24. Implementar assistente Bedrock, exportações e observabilidade (Desejável)
-  - [ ] 24.1 Implementar a Lambda do Assistente_Reserva
+- [x] 24. Implementar assistente Bedrock, exportações e observabilidade (Desejável)
+  - [x] 24.1 Implementar a Lambda do Assistente_Reserva
     - Prompt só com descrição, data e catálogos permitidos; Guardrails; modelo por variável de ambiente; saneamento por JSON Schema e catálogo com `camposNaoPreenchidos`; timeout 10 s → 503
     - _Requirements: 18.1, 18.2, 18.3, 18.4, 18.6, 18.7, 18.8_
   - [ ]* 24.2 Escrever teste de propriedade da saída do assistente
     - **Property 17: Saída do Assistente restrita ao catálogo**
     - **Validates: Requirements 18.4, 22.4**
-  - [ ] 24.3 Implementar a Lambda de exportação
+  - [x] 24.3 Implementar a Lambda de exportação
     - CSV UTF-8 com ";" (uma linha por Período) e PDF agrupado por data; mesmas regras de visibilidade do painel; S3 privado e URL pré-assinada de 5 min
     - _Requirements: 17.1, 17.2, 17.3_
   - [ ]* 24.4 Escrever testes da exportação com dublê de S3 (round-trip do CSV exportado)
     - _Requirements: 17.4, 22.6_
-  - [ ] 24.5 Implementar métricas e alarmes
+  - [x] 24.5 Implementar métricas e alarmes
     - Métricas de reservas criadas, conflitos RN5/RN6/RN7 e falhas de Notificação/SNP; alarme da DLQ ≥ 1 com SNS; X-Ray no API Gateway e no Step Functions
     - _Requirements: 21.1, 21.2, 21.3_
-  - [ ] 24.6 Integrar no frontend o assistente, a exportação e a `/caixa-simulada`
+  - [x] 24.6 Integrar no frontend o assistente, a exportação e a `/caixa-simulada`
     - Proposta pré-preenche e exige confirmação; aviso de indisponibilidade mantém o formulário manual
     - _Requirements: 13.6, 17.1, 18.5, 18.8_
 
 - [x] 25. Configurar steering e hooks do Kiro
   - [x] 25.1 Criar `.kiro/steering/` com `idioma.md`, `java.md`, `angular.md`, `seguranca-lgpd.md` e `arquitetura.md`
     - _Requirements: 19.1, 19.2_
-  - [ ] 25.2 Criar `.kiro/hooks/` com `testes-dominio`, `verifica-segredos-pii` e `atualiza-openapi-docs`
+  - [x] 25.2 Criar `.kiro/hooks/` com `testes-dominio`, `verifica-segredos-pii` e `atualiza-openapi-docs`
     - _Requirements: 19.3, 19.4, 19.5_
 
 - [x] 26. Escrever a documentação
@@ -312,7 +312,7 @@ Implementação incremental em Java 21 (Maven multimódulo), Angular e AWS CDK (
     - Arquitetura e fluxo de eventos em Mermaid, modelo DynamoDB e ER, `openapi.yaml` (OpenAPI 3), `lgpd.md`, `kiro.md`
     - _Requirements: 3.10, 6.19, 17.5, 19.6, 22.10_
 
-- [ ] 27. Checkpoint final
+- [x] 27. Checkpoint final
   - Rodar `mvn test` em `backend/`, build e testes do `frontend/` e `cdk synth` em `infra/`. Ensure all tests pass, ask the user if questions arise.
 
 ## Notes

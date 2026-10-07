@@ -1,5 +1,6 @@
 package br.mp.mpf.sisgares.reservas;
 
+import br.mp.mpf.sisgares.comumaws.auth.Autorizador;
 import br.mp.mpf.sisgares.comumaws.auth.ExtratorPrincipal;
 import br.mp.mpf.sisgares.comumaws.auth.Principal;
 import br.mp.mpf.sisgares.comumaws.dynamo.ClienteDynamo;
@@ -78,7 +79,7 @@ public final class Handler implements RequestHandler<APIGatewayV2HTTPEvent, APIG
             PublicadorEventos publicador = PublicadorEventBridge.doAmbiente(
                     System.getenv(PublicadorEventBridge.VAR_BARRAMENTO), log);
             return new ServicoReservas(adaptador, adaptador, RELOGIO, ServicoReservas.ResolvedorNome.doPrincipal(),
-                    publicador, log);
+                    publicador, log, Autorizador.doAmbiente());
         }
     }
 
@@ -205,8 +206,8 @@ public final class Handler implements RequestHandler<APIGatewayV2HTTPEvent, APIG
 
     private static String textoCorpo(APIGatewayV2HTTPEvent evento) {
         String corpo = evento.getBody();
-        // Lombok gera isBase64Encoded() para o campo boolean "isBase64Encoded"
-        if (corpo != null && evento.isBase64Encoded()) {
+        // A biblioteca expõe getIsBase64Encoded() para o campo boolean "isBase64Encoded"
+        if (corpo != null && evento.getIsBase64Encoded()) {
             return new String(Base64.getDecoder().decode(corpo), StandardCharsets.UTF_8);
         }
         return corpo;

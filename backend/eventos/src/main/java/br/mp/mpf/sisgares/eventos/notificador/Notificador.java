@@ -1,6 +1,7 @@
 package br.mp.mpf.sisgares.eventos.notificador;
 
 import br.mp.mpf.sisgares.comumaws.http.LogEstruturado;
+import br.mp.mpf.sisgares.comumaws.http.Metricas;
 import br.mp.mpf.sisgares.dominio.ComparadorVersoes;
 import br.mp.mpf.sisgares.dominio.Diferenca;
 import br.mp.mpf.sisgares.dominio.Periodo;
@@ -43,6 +44,7 @@ public final class Notificador {
     private final RegistroIdempotencia idempotencia;
     private final Clock clock;
     private final LogEstruturado log;
+    private final Metricas metricas;
 
     public Notificador(LeitorDados leitor, EnviadorEmail enviador, CaixaNotificacoes caixa,
                        RegistroIdempotencia idempotencia, Clock clock, LogEstruturado log) {
@@ -53,6 +55,7 @@ public final class Notificador {
         this.idempotencia = Objects.requireNonNull(idempotencia, "idempotencia");
         this.clock = Objects.requireNonNull(clock, "clock");
         this.log = Objects.requireNonNull(log, "log");
+        this.metricas = new Metricas(this.clock);
     }
 
     /** Resultado do processamento, devolvido ao Step Functions. */
@@ -72,6 +75,8 @@ public final class Notificador {
             return resultado;
         } catch (RuntimeException e) {
             idempotencia.falhar(evento.eventoId());
+            // Uma métrica por tentativa falha do evento (Req. 21.2)
+            metricas.contar(Metricas.FALHA_NOTIFICACAO);
             throw e;
         }
     }

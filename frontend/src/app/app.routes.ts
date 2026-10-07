@@ -6,8 +6,9 @@ import { GRUPOS } from './core/auth/perfis';
 
 const { ADMINISTRADOR, SETOR_ATENDENTE, SOLICITANTE } = GRUPOS;
 
-/** Tela provisória para rotas cujas telas serão implementadas em tarefas futuras. */
-const emConstrucao = () => import('./features/em-construcao/em-construcao').then((m) => m.EmConstrucao);
+
+/** Tela genérica de lista + formulário do catálogo; a entidade vem de `data.entidade` (Req. 7). */
+const cadastro = () => import('./features/cadastros/cadastro-generico').then((m) => m.CadastroGenerico);
 
 export const routes: Routes = [
   // `/` leva ao painel do perfil (Req. 20.7) ou ao login quando não autenticado.
@@ -73,11 +74,11 @@ export const routes: Routes = [
     path: 'cadastros',
     canActivate: [grupoGuard(ADMINISTRADOR)],
     children: [
-      { path: 'setores', title: 'Setores | SISGARES', data: { titulo: 'Setores' }, loadComponent: emConstrucao },
-      { path: 'ambientes', title: 'Ambientes | SISGARES', data: { titulo: 'Ambientes' }, loadComponent: emConstrucao },
-      { path: 'disposicoes', title: 'Disposições | SISGARES', data: { titulo: 'Disposições' }, loadComponent: emConstrucao },
-      { path: 'grupos', title: 'Grupos de recursos | SISGARES', data: { titulo: 'Grupos de recursos' }, loadComponent: emConstrucao },
-      { path: 'recursos', title: 'Recursos | SISGARES', data: { titulo: 'Recursos' }, loadComponent: emConstrucao },
+      { path: 'setores', title: 'Setores | SISGARES', data: { titulo: 'Setores', entidade: 'setores' }, loadComponent: cadastro },
+      { path: 'ambientes', title: 'Ambientes | SISGARES', data: { titulo: 'Ambientes', entidade: 'ambientes' }, loadComponent: cadastro },
+      { path: 'disposicoes', title: 'Disposições | SISGARES', data: { titulo: 'Disposições', entidade: 'disposicoes' }, loadComponent: cadastro },
+      { path: 'grupos', title: 'Grupos de recursos | SISGARES', data: { titulo: 'Grupos de recursos', entidade: 'grupos' }, loadComponent: cadastro },
+      { path: 'recursos', title: 'Recursos | SISGARES', data: { titulo: 'Recursos', entidade: 'recursos' }, loadComponent: cadastro },
     ],
   },
   {
@@ -85,14 +86,14 @@ export const routes: Routes = [
     title: 'Configuração | SISGARES',
     canActivate: [grupoGuard(ADMINISTRADOR)],
     data: { titulo: 'Configuração' },
-    loadComponent: emConstrucao,
+    loadComponent: () => import('./features/configuracao/configuracao').then((m) => m.Configuracao),
   },
   {
     path: 'caixa-simulada',
     title: 'Caixa simulada | SISGARES',
     canActivate: [grupoGuard(ADMINISTRADOR)],
     data: { titulo: 'Caixa simulada' },
-    loadComponent: emConstrucao,
+    loadComponent: () => import('./features/caixa-simulada/caixa-simulada').then((m) => m.CaixaSimulada),
   },
   { path: '**', redirectTo: '' },
 ];

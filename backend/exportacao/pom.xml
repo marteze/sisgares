@@ -4,21 +4,69 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-
   <parent>
     <groupId>br.mp.mpf.sisgares</groupId>
     <artifactId>sisgares-backend</artifactId>
     <version>0.1.0-SNAPSHOT</version>
   </parent>
-
   <artifactId>exportacao</artifactId>
   <name>SISGARES - Exportacao</name>
-
   <dependencies>
     <!-- contexto -> comum-aws (que traz dominio transitivamente) -->
     <dependency>
       <groupId>br.mp.mpf.sisgares</groupId>
       <artifactId>comum-aws</artifactId>
     </dependency>
+    <!-- Interface RequestHandler da Lambda (versão no pom pai) -->
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-lambda-java-core</artifactId>
+    </dependency>
+    <!-- S3 e S3Presigner (versão pelo BOM do AWS SDK no pom pai) -->
+    <dependency>
+      <groupId>software.amazon.awssdk</groupId>
+      <artifactId>s3</artifactId>
+    </dependency>
+    <!-- Geração de PDF (versão fixa no pom pai) -->
+    <dependency>
+      <groupId>org.apache.pdfbox</groupId>
+      <artifactId>pdfbox</artifactId>
+    </dependency>
   </dependencies>
+  <build>
+    <plugins>
+      <!-- Gera o JAR único referenciado pela ApiStack em Code.fromAsset -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>3.6.0</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <createDependencyReducedPom>false</createDependencyReducedPom>
+              <filters>
+                <filter>
+                  <!-- Remove assinaturas de dependências, inválidas no JAR combinado -->
+                  <artifact>*:*</artifact>
+                  <excludes>
+                    <exclude>META-INF/*.SF</exclude>
+                    <exclude>META-INF/*.DSA</exclude>
+                    <exclude>META-INF/*.RSA</exclude>
+                  </excludes>
+                </filter>
+              </filters>
+              <transformers>
+                <!-- Mescla META-INF/services (necessário para o AWS SDK v2) -->
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+              </transformers>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 </project>

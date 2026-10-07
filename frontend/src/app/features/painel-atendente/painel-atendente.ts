@@ -1,5 +1,6 @@
 import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -11,6 +12,7 @@ import {
   CardReserva,
   ColunaAtendente,
   FiltroPainelAtendente,
+  FormatoExportacao,
   PainelAtendenteService,
 } from './painel-atendente.service';
 
@@ -21,6 +23,12 @@ function hojeFortaleza(): string {
   return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Fortaleza' }).format(new Date());
 }
 
+/** Célula CSV com aspas e neutralização de fórmulas (=, +, -, @) para planilhas. */
+function celulaCsv(valor: string | number | null | undefined): string {
+  let t = String(valor ?? '');
+  if (/^[=+\-@\t\r]/.test(t)) t = `'${t}`;
+  return `"${t.replace(/"/g, '""')}"`;
+}
 /** Extrai `HH:mm` de um horário ISO (`HH:mm`, `HH:mm:ss` ou data-hora completa). */
 function extrairHora(valor: string): string {
   const m = /(\d{2}):(\d{2})/.exec(valor.includes('T') ? valor.split('T')[1] : valor);
@@ -45,7 +53,7 @@ interface ColunaVisao {
  */
 @Component({
   selector: 'app-painel-atendente',
-  imports: [RouterLink, MatFormFieldModule, MatSelectModule, MatInputModule, MatCheckboxModule],
+  imports: [RouterLink, MatButtonModule, MatFormFieldModule, MatSelectModule, MatInputModule, MatCheckboxModule],
   templateUrl: './painel-atendente.html',
   styleUrl: './painel-atendente.scss',
 })
@@ -137,5 +145,66 @@ export class PainelAtendente {
           this.carregando.set(false);
         },
       });
+  }
+
+  // ---------- Exportação (Req. 17.1) ----------
+  protected readonly exportando = signal(false);
+  protected readonly mensagemExportacao = signal('');
+  /** Solicita a exportação à API e abre a URL temporária; sem API, gera o CSV no cliente (demonstração). */
+  protected exportar(formato: FormatoExportacao): void {
+    const filtro: FiltroPainelAtendente = { data: this.data(), colunas: this.colunas(), fds: this.fds() };
+    this.exportando.set(true);
+    this.mensagemExportacao.set(`Gerando arquivo ${formato.toUpperCase()}…`);
+    this.servico
+      .exportar(formato, filtro)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (r) => {
+          this.exportando.set(false);
+          if (!/^https:\/\//.test(r.url)) {
+            this.mensagemExportacao.set('A exportação retornou um endereço inválido. Tente novamente.');
+            return;
+          }
+          window.open(r.url, '_blank', 'noopener,noreferrer');
+          this.mensagemExportacao.set(`Arquivo ${formato.toUpperCase()} gerado; o download foi aberto em nova aba. O link expira em 5 minutos.`);
+        },
+        error: () => {
+          this.exportando.set(false);
+          if (formato === 'csv') {
+            this.baixarCsvDemonstracao(filtro);
+            this.mensagemExportacao.set(
+              'Atenção: não foi possível acessar o servidor; o CSV foi gerado no navegador com os dados exibidos (demonstração).',
+            );
+          } else {
+            this.mensagemExportacao.set('Não foi possível gerar o PDF agora. Tente novamente mais tarde ou exporte em CSV.');
+          }
+        },
+      });
+  }
+  private baixarCsvDemonstracao(filtro: FiltroPainelAtendente): void {
+    const linhas = [['Data', 'Início', 'Término', 'Finalidade', 'Solicitante', 'Ambiente', 'Recursos', 'Situação']];
+    for (const c of this.colunasVisao()) {
+      for (const k of c.cards) {
+        linhas.push([
+          c.rotulo,
+          k.horaInicio,
+          k.horaTermino,
+          k.finalidade,
+          k.solicitanteNome,
+          k.ambiente,
+          k.recursos.map((r) => (r.quantidade != null ? `${r.descricao} (${r.quantidade})` : r.descricao)).join('; '),
+          k.cancelada ? 'Cancelada' : 'Ativa',
+        ]);
+      }
+    }
+    // BOM para acentuação correta no Excel; separador ';' (padrão pt-BR).
+    const csv = '\uFEFF' + linhas.map((l) => l.map(celulaCsv).join(';')).join('\r\n');
+    const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `reservas-${filtro.data}.csv`;
+    a.rel = 'noopener';
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
 }

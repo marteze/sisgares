@@ -23,7 +23,7 @@ export interface Usuario {
 }
 
 /** Usuários fictícios disponíveis no modo mock (um por perfil). */
-export const USUARIOS_FICTICIOS: ReadonlyArray<Usuario> = [
+export const USUARIOS_FICTICIOS: readonly Usuario[] = [
   { sub: 'mock-admin', nome: 'Ana Administradora', email: 'admin@exemplo.gov.br', grupos: ['Administrador'] },
   { sub: 'mock-atendente', nome: 'Bruno Atendente', email: 'atendente@exemplo.gov.br', grupos: ['Setor_Atendente'] },
   { sub: 'mock-solicitante', nome: 'Carla Solicitante', email: 'solicitante@exemplo.gov.br', grupos: ['Solicitante'] },

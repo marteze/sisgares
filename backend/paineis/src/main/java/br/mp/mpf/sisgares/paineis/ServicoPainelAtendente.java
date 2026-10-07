@@ -1,6 +1,10 @@
 package br.mp.mpf.sisgares.paineis;
 
+import br.mp.mpf.sisgares.comumaws.auth.Acao;
+import br.mp.mpf.sisgares.comumaws.auth.Autorizador;
+import br.mp.mpf.sisgares.comumaws.auth.AutorizadorLocal;
 import br.mp.mpf.sisgares.comumaws.auth.Principal;
+import br.mp.mpf.sisgares.comumaws.auth.RecursoAutorizacao;
 import br.mp.mpf.sisgares.comumaws.http.ExcecaoAcessoNegado;
 import br.mp.mpf.sisgares.comumaws.http.ExcecaoValidacao;
 import br.mp.mpf.sisgares.dominio.ParametrosGrade;
@@ -33,6 +37,10 @@ import java.util.Optional;
  *       dois perfis, prevalece o de Administrador (visão mais ampla).</li>
  *   <li>Demais perfis: 403.</li>
  * </ul>
+ *
+ * <p>Além dessas verificações (mantidas como salvaguarda), o {@link Autorizador} avalia a ação
+ * Cedar {@code VerPainelAtendente} sobre a unidade/setor do próprio usuário (Req. 5.5, 5.6).
+ * Os cards já vêm filtrados pela unidade (GSI3) ou pelo setor (GSI2), o mesmo escopo autorizado.
  *
  * <p>Cada coluna (data) traz um card por Período que inicia naquela data, ordenado por início (16.2),
  * com Recursos, Pedidos_SNP registrados e o indicador {@code cancelada} (16.3, 16.6).
@@ -92,9 +100,16 @@ public final class ServicoPainelAtendente {
     }
 
     private final FonteDados fonte;
+    private final Autorizador autorizador;
 
+    /** Construtor com {@link AutorizadorLocal} (modo local e testes). */
     public ServicoPainelAtendente(FonteDados fonte) {
+        this(fonte, new AutorizadorLocal());
+    }
+
+    public ServicoPainelAtendente(FonteDados fonte, Autorizador autorizador) {
         this.fonte = Objects.requireNonNull(fonte, "fonte é obrigatória");
+        this.autorizador = Objects.requireNonNull(autorizador, "autorizador é obrigatório");
     }
 
     /**
@@ -168,9 +183,12 @@ public final class ServicoPainelAtendente {
             if (unidade == null) {
                 throw new ExcecaoAcessoNegado("Administrador sem Unidade_Macro.");
             }
+            autorizador.exigir(usuario, Acao.VER_PAINEL_ATENDENTE, RecursoAutorizacao.painelDe(usuario));
             reservas = fonte.porUnidade(unidade, de, ate);
         } else if (usuario.pertenceA(GRUPO_ATENDENTE)) {
-            reservas = fonte.porSetor(setor(usuario), de, ate);
+            long setor = setor(usuario);
+            autorizador.exigir(usuario, Acao.VER_PAINEL_ATENDENTE, RecursoAutorizacao.painelDe(usuario));
+            reservas = fonte.porSetor(setor, de, ate);
         } else {
             throw new ExcecaoAcessoNegado("Perfil sem acesso ao Painel do Atendente.");
         }

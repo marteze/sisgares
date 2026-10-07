@@ -5,6 +5,7 @@ import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -44,8 +45,8 @@ import software.constructs.Construct;
 
 /**
  * Stack da API: HTTP API (API Gateway v2) sob {@code /api}, Lambdas Java 21 por contexto
- * (catalogo, reservas, paineis, configuracao) e Verified Permissions com as políticas Cedar
- * (Req. 2.1, 2.2, 6.1, 6.2, 6.11, 6.14, 6.18, 21.1).
+ * (catalogo, reservas, paineis, configuracao, assistente, exportacao) e Verified Permissions com as políticas Cedar
+ * (Req. 2.1, 2.2, 6.1, 6.2, 6.11, 6.14, 6.18, 17, 18, 21.1).
  *
  * <p>Decisões de projeto:
  * <ul>
@@ -70,6 +71,14 @@ import software.constructs.Construct;
  *   <li><b>IAM mínimo</b>: uma role por Lambda; acesso à tabela via {@code grantReadData} ou
  *       {@code grantReadWriteData} conforme o contexto, CMK via grants e
  *       {@code verifiedpermissions:IsAuthorized} somente no ARN do policy store.</li>
+ *   <li><b>Assistente (Req. 17)</b>: {@code bedrock:InvokeModel} somente no ARN do foundation model
+ *       (contexto {@code modeloBedrock}, padrão {@value #MODELO_PADRAO}); com o contexto
+ *       {@code guardrailId}, também {@code bedrock:ApplyGuardrail} somente no ARN do guardrail.</li>
+ *   <li><b>Exportação (Req. 18)</b>: {@code s3:PutObject}/{@code s3:GetObject} somente em
+ *       {@code exportacoes/*} do bucket de exportações, com uso da CMK (SSE-KMS).</li>
+ *   <li><b>X-Ray (Req. 21.1)</b>: HTTP API (API Gateway v2) <b>não</b> tem rastreamento X-Ray
+ *       nativo (só REST API tem). O rastreamento começa nas Lambdas integradas, todas com
+ *       {@code Tracing.ACTIVE}; os access logs/métricas do stage cobrem a camada da API.</li>
  * </ul>
  * O authorizer em modo mock ({@code MODO_AUTH=mock}) nunca é configurado aqui.
  */
@@ -85,6 +94,14 @@ public class ApiStack extends Stack {
     private static final int TIMEOUT_SEGUNDOS = 15;
     private static final int THROTTLE_TAXA = 50;
     private static final int THROTTLE_RAJADA = 100;
+    /** Barramento EventBridge criado pela EventosStack (referenciado por nome para evitar ciclo). */
+    private static final String BARRAMENTO = "sisgares-bus";
+    /** Modelo padrão do Assistente_Reserva no Bedrock. */
+    private static final String MODELO_PADRAO = "amazon.nova-lite-v1:0";
+    /** Versão padrão do guardrail quando o contexto {@code guardrailVersao} não é informado. */
+    private static final String GUARDRAIL_VERSAO_PADRAO = "DRAFT";
+    /** Prefixo dos objetos gerados pela exportação (ver ArmazenamentoS3 no backend). */
+    private static final String PREFIXO_EXPORTACOES = "exportacoes/*";
 
     private final HttpApi api;
     private final CfnPolicyStore policyStore;
@@ -124,14 +141,49 @@ public class ApiStack extends Stack {
         criarPoliticasCedar();
 
         // Lambdas por contexto (escrita somente onde o contexto altera dados)
-        Alias catalogo = criarLambda("catalogo", chave, tabela, true);
-        Alias reservas = criarLambda("reservas", chave, tabela, true);
-        Alias paineis = criarLambda("paineis", chave, tabela, false);
-        Alias configuracao = criarLambda("configuracao", chave, tabela, true);
-        // Upload/leitura de imagens de Disposição (Req. 6.12) somente no catálogo
+        // Catálogo recebe o nome do bucket de imagens de Disposição (Req. 6.12)
+        Alias catalogo = criarLambda("catalogo", chave, tabela, true,
+                Map.of("BUCKET_IMAGENS", bucketImagens.getBucketName()));
+        Alias reservas = criarLambda("reservas", chave, tabela, true, Map.of());
+        Alias paineis = criarLambda("paineis", chave, tabela, false, Map.of());
+        Alias configuracao = criarLambda("configuracao", chave, tabela, true, Map.of());
+        // Upload/leitura de imagens de Disposição (Req. 6.12) somente no catálogo.
+        // O bucket usa SSE-KMS com a CMK: grantReadWrite concede também Encrypt/Decrypt/GenerateDataKey
+        // na chave, e o catálogo (escrita=true) já recebe grantEncryptDecrypt na CMK.
         bucketImagens.grantReadWrite(catalogo);
-        // Painéis apenas leem. O bucket de exportações é recebido para a Lambda exportacao
-        // (tarefa posterior); nenhuma das Lambdas desta stack recebe acesso a ele.
+        // Painéis apenas leem.
+
+        // Assistente_Reserva (Req. 17): leitura da tabela e Bedrock restrito ao modelo/guardrail
+        String modelo = contexto("modeloBedrock", MODELO_PADRAO);
+        String guardrailId = contexto("guardrailId", "");
+        Map<String, String> varsAssistente = new HashMap<>();
+        varsAssistente.put("MODELO_BEDROCK", modelo);
+        if (!guardrailId.isEmpty()) {
+            varsAssistente.put("GUARDRAIL_ID", guardrailId);
+            varsAssistente.put("GUARDRAIL_VERSAO", contexto("guardrailVersao", GUARDRAIL_VERSAO_PADRAO));
+        }
+        Alias assistente = criarLambda("assistente", chave, tabela, false, varsAssistente);
+        assistente.getRole().addToPrincipalPolicy(PolicyStatement.Builder.create()
+                .actions(List.of("bedrock:InvokeModel"))
+                .resources(List.of("arn:aws:bedrock:" + this.getRegion() + "::foundation-model/" + modelo))
+                .build());
+        if (!guardrailId.isEmpty()) {
+            assistente.getRole().addToPrincipalPolicy(PolicyStatement.Builder.create()
+                    .actions(List.of("bedrock:ApplyGuardrail"))
+                    .resources(List.of("arn:aws:bedrock:" + this.getRegion() + ":" + this.getAccount()
+                            + ":guardrail/" + guardrailId))
+                    .build());
+        }
+
+        // Exportação (Req. 18): leitura da tabela e S3 somente no prefixo exportacoes/*
+        Alias exportacao = criarLambda("exportacao", chave, tabela, false,
+                Map.of("BUCKET_EXPORTACOES", bucketExportacoes.getBucketName()));
+        exportacao.getRole().addToPrincipalPolicy(PolicyStatement.Builder.create()
+                .actions(List.of("s3:PutObject", "s3:GetObject"))
+                .resources(List.of(bucketExportacoes.arnForObjects(PREFIXO_EXPORTACOES)))
+                .build());
+        // SSE-KMS: gravar exige GenerateDataKey; ler/URL pré-assinada exige Decrypt (já concedido)
+        chave.grant(exportacao.getRole(), "kms:GenerateDataKey");
 
         // Authorizer JWT do Cognito: token ausente, expirado ou com audiência errada → 401
         String emissor = "https://cognito-idp." + Stack.of(autenticacao).getRegion() + ".amazonaws.com/"
@@ -177,6 +229,8 @@ public class ApiStack extends Stack {
         adicionarRotas("/api/paineis/{proxy+}", List.of(HttpMethod.GET), paineis, "IntegracaoPaineis");
         adicionarRotas("/api/configuracao", List.of(HttpMethod.GET, HttpMethod.PUT), configuracao,
                 "IntegracaoConfiguracao");
+        adicionarRotas("/api/assistente/propostas", List.of(HttpMethod.POST), assistente, "IntegracaoAssistente");
+        adicionarRotas("/api/exportacoes", List.of(HttpMethod.POST), exportacao, "IntegracaoExportacao");
 
         CfnOutput.Builder.create(this, "UrlApi").value(this.api.getApiEndpoint()).build();
         CfnOutput.Builder.create(this, "PolicyStoreId").value(this.policyStore.getAttrPolicyStoreId()).build();
@@ -186,7 +240,8 @@ public class ApiStack extends Stack {
      * Cria a Lambda do módulo com role própria, X-Ray, log group cifrado (90 dias), SnapStart
      * em versões publicadas e alias {@code atual}.
      */
-    private Alias criarLambda(final String modulo, final IKey chave, final ITable tabela, final boolean escrita) {
+    private Alias criarLambda(final String modulo, final IKey chave, final ITable tabela, final boolean escrita,
+                              final Map<String, String> variaveisExtras) {
         String sufixo = Character.toUpperCase(modulo.charAt(0)) + modulo.substring(1);
         String nome = "sisgares-" + modulo;
 
@@ -206,6 +261,16 @@ public class ApiStack extends Stack {
         // Escrita de logs restrita ao próprio log group
         logs.grantWrite(role);
 
+        Map<String, String> variaveis = new HashMap<>();
+        variaveis.put("TABELA_SISGARES", tabela.getTableName());
+        variaveis.put("POLICY_STORE_ID", this.policyStore.getAttrPolicyStoreId());
+        variaveis.putAll(variaveisExtras);
+        boolean publicaEventos = "reservas".equals(modulo);
+        if (publicaEventos) {
+            // Publicação dos eventos de reserva no barramento (Req. 2.4)
+            variaveis.put("BARRAMENTO", BARRAMENTO);
+        }
+
         Function funcao = Function.Builder.create(this, "Funcao" + sufixo)
                 .functionName(nome)
                 .runtime(Runtime.JAVA_21)
@@ -217,9 +282,7 @@ public class ApiStack extends Stack {
                 .tracing(Tracing.ACTIVE)
                 .logGroup(logs)
                 .role(role)
-                .environment(Map.of(
-                        "TABELA_SISGARES", tabela.getTableName(),
-                        "POLICY_STORE_ID", this.policyStore.getAttrPolicyStoreId()))
+                .environment(variaveis)
                 .build();
 
         // SnapStart nas versões publicadas (escape hatch do L1)
@@ -239,11 +302,26 @@ public class ApiStack extends Stack {
                 .actions(List.of("verifiedpermissions:IsAuthorized"))
                 .resources(List.of(this.policyStore.getAttrArn()))
                 .build());
+        if (publicaEventos) {
+            // PutEvents somente no ARN do sisgares-bus (construído por nome, sem referência à EventosStack)
+            role.addToPolicy(PolicyStatement.Builder.create()
+                    .actions(List.of("events:PutEvents"))
+                    .resources(List.of("arn:aws:events:" + this.getRegion() + ":" + this.getAccount()
+                            + ":event-bus/" + BARRAMENTO))
+                    .build());
+        }
 
         return Alias.Builder.create(this, "Alias" + sufixo)
                 .aliasName("atual")
                 .version(funcao.getCurrentVersion())
                 .build();
+    }
+
+    /** Valor textual do contexto CDK ou o padrão quando ausente/vazio. */
+    private String contexto(final String chave, final String padrao) {
+        Object valor = this.getNode().tryGetContext(chave);
+        String texto = valor == null ? "" : valor.toString().trim();
+        return texto.isEmpty() ? padrao : texto;
     }
 
     /** Adiciona as rotas com o authorizer padrão integrando o alias da Lambda. */

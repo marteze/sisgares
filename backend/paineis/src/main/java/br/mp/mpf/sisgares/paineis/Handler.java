@@ -1,5 +1,6 @@
 package br.mp.mpf.sisgares.paineis;
 
+import br.mp.mpf.sisgares.comumaws.auth.Autorizador;
 import br.mp.mpf.sisgares.comumaws.auth.ExtratorPrincipal;
 import br.mp.mpf.sisgares.comumaws.auth.Principal;
 import br.mp.mpf.sisgares.comumaws.dynamo.Chaves;
@@ -78,7 +79,7 @@ public final class Handler implements RequestHandler<APIGatewayV2HTTPEvent, APIG
                 new ServicoPainelAtendente(new FonteAtendenteDynamo(
                         new RepositorioCatalogo(dynamo.cliente(), dynamo.nomeTabela()),
                         new RepositorioReservas(dynamo.cliente(), dynamo.nomeTabela()),
-                        dynamo.cliente(), dynamo.nomeTabela())),
+                        dynamo.cliente(), dynamo.nomeTabela()), Autorizador.doAmbiente()),
                 ExtratorPrincipal.doAmbiente(relogio),
                 new LogEstruturado(relogio, "paineis"));
     }

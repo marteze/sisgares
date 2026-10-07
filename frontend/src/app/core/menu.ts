@@ -11,7 +11,7 @@ export interface ItemMenu {
 const { ADMINISTRADOR, SETOR_ATENDENTE, SOLICITANTE } = GRUPOS;
 
 /** Menu completo, conforme a tabela de rotas do design. */
-export const ITENS_MENU: ReadonlyArray<ItemMenu> = [
+export const ITENS_MENU: readonly ItemMenu[] = [
   { rotulo: 'Painel do solicitante', rota: '/painel/solicitante', icone: 'calendar_view_week', grupos: [SOLICITANTE, ADMINISTRADOR] },
   { rotulo: 'Painel do atendente', rota: '/painel/atendente', icone: 'dashboard', grupos: [SETOR_ATENDENTE, ADMINISTRADOR] },
   { rotulo: 'Reservas', rota: '/reservas', icone: 'event_note', grupos: [SOLICITANTE, ADMINISTRADOR] },

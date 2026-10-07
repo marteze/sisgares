@@ -1,0 +1,15 @@
+# Ambiente local do SISGARES (Requisito 1.7): DynamoDB Local na rede usada pelo SAM CLI.
+services:
+  dynamodb-local:
+    # Versão fixa para reprodutibilidade
+    image: amazon/dynamodb-local:2.5.2
+    container_name: dynamodb-local
+    command: ["-jar", "DynamoDBLocal.jar", "-sharedDb", "-inMemory"]
+    ports:
+      - "8000:8000"
+    networks:
+      - sisgares-local
+
+networks:
+  sisgares-local:
+    name: sisgares-local

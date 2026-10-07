@@ -1,0 +1,69 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  SISGARES local (Requisito 1.7). API HTTP com as Lambdas Java apontando para o DynamoDB Local.
+  Uso exclusivo em desenvolvimento: MODO_AUTH=mock e credenciais fictícias do DynamoDB Local.
+
+Globals:
+  Function:
+    Runtime: java21
+    Architectures: [x86_64]
+    MemorySize: 1024
+    Timeout: 30
+    Environment:
+      Variables:
+        TABELA_SISGARES: sisgares
+        # Nome do contêiner na rede sisgares-local (sam local start-api --docker-network sisgares-local)
+        DYNAMODB_ENDPOINT: http://dynamodb-local:8000
+        MODO_AUTH: mock
+        AWS_REGION: us-east-1
+        # Credenciais fictícias exigidas pelo SDK; o DynamoDB Local não as valida (não são segredos)
+        AWS_ACCESS_KEY_ID: local
+        AWS_SECRET_ACCESS_KEY: local
+
+Resources:
+  ApiLocal:
+    Type: AWS::Serverless::HttpApi
+
+  FuncaoReservas:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ../../backend/reservas/target/reservas-0.1.0-SNAPSHOT.jar
+      Handler: br.mp.mpf.sisgares.reservas.Handler::handleRequest
+      Events:
+        Raiz:
+          Type: HttpApi
+          Properties: { ApiId: !Ref ApiLocal, Path: /api/reservas, Method: ANY }
+        Proxy:
+          Type: HttpApi
+          Properties: { ApiId: !Ref ApiLocal, Path: "/api/reservas/{proxy+}", Method: ANY }
+
+  FuncaoPaineis:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ../../backend/paineis/target/paineis-0.1.0-SNAPSHOT.jar
+      Handler: br.mp.mpf.sisgares.paineis.Handler::handleRequest
+      Events:
+        Proxy:
+          Type: HttpApi
+          Properties: { ApiId: !Ref ApiLocal, Path: "/api/paineis/{proxy+}", Method: GET }
+
+  FuncaoCatalogo:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ../../backend/catalogo/target/catalogo-0.1.0-SNAPSHOT.jar
+      Handler: br.mp.mpf.sisgares.catalogo.Handler::handleRequest
+      Events:
+        Proxy:
+          Type: HttpApi
+          Properties: { ApiId: !Ref ApiLocal, Path: "/api/catalogo/{proxy+}", Method: ANY }
+
+  FuncaoConfiguracao:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ../../backend/configuracao/target/configuracao-0.1.0-SNAPSHOT.jar
+      Handler: br.mp.mpf.sisgares.configuracao.Handler::handleRequest
+      Events:
+        Raiz:
+          Type: HttpApi
+          Properties: { ApiId: !Ref ApiLocal, Path: /api/configuracao, Method: ANY }

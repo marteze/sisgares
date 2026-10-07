@@ -8,13 +8,20 @@ Arquitetura serverless e orientada a eventos na AWS: Angular em S3 + CloudFront,
 
 | Parte | Estado |
 |---|---|
-| Frontend (Angular) | Roda localmente com `npm start`. Sem backend, usa dados de demonstração em memória e login simulado. |
-| Backend — `dominio` | Regras de negócio em Java puro (conflito, disponibilidade, status, grade, versões). |
-| Backend — `comum-aws` | Adaptadores DynamoDB (chaves, repositórios) com os primeiros testes. |
-| Backend — contextos (`catalogo`, `reservas`, `paineis`, `configuracao`, `eventos`, `seed`, `assistente`, `exportacao`) | Módulos criados; handlers ainda em implementação. |
-| Infra (CDK) | `SisgaresSegurancaStack` (KMS, CloudTrail) e `SisgaresDadosStack` (tabela DynamoDB, buckets) definidas. `SisgaresEventosStack`, `SisgaresApiStack` e `SisgaresFrontStack` ainda vazias. |
+| Frontend (Angular) | Roda localmente com `npm start`. Sem backend, usa dados de demonstração em memória e login simulado. `npm run build`, `npm run lint` e `npm test -- --watch=false` passam (Vitest: 1 arquivo, 2 testes). |
+| Backend (10 módulos Maven) | Todos implementados: `dominio`, `comum-aws`, `catalogo`, `reservas`, `paineis`, `configuracao`, `eventos`, `seed`, `assistente`, `exportacao`. `mvn -q verify` passa com 110 testes (JUnit 5 + jqwik), 0 falhas. Os módulos `dominio` e `seed` ainda não têm testes próprios; o `dominio` é exercitado pelos testes dos demais módulos. |
+| Infra (CDK) | As 5 stacks (`SisgaresSegurancaStack`, `SisgaresDadosStack`, `SisgaresEventosStack`, `SisgaresApiStack`, `SisgaresFrontStack`) estão definidas e `cdk synth` gera os 5 templates. Nenhum deploy foi feito. |
 
-Backend e infra exigem JDK 21 e Maven, que não estão instalados na máquina de desenvolvimento atual. Por isso os comandos Maven e CDK abaixo ainda não foram executados nela.
+Testes por módulo do backend (relatórios do surefire): `comum-aws` 29, `reservas` 23, `catalogo` 12, `eventos` 12, `assistente` 11, `paineis` 11, `exportacao` 10, `configuracao` 2.
+
+### JDK 21 e Maven
+
+JDK 21 (`openjdk@21`) e Maven estão instalados via Homebrew. Antes dos comandos Maven e CDK, exporte:
+
+```bash
+export JAVA_HOME=/opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home
+export PATH=/opt/homebrew/opt/openjdk@21/bin:$PATH
+```
 
 ## Estrutura do repositório
 
@@ -31,7 +38,8 @@ docs/           Arquitetura, fluxo de eventos e modelo DynamoDB
 ## Pré-requisitos
 
 - Node.js 22 ou superior e npm (testado com Node 26).
-- JDK 21 e Maven 3.9+ (backend e infra).
+- JDK 21 e Maven 3.9+ (backend e infra), via Homebrew com o `export` de `JAVA_HOME` acima.
+- Docker e AWS SAM CLI, só para a execução local com SAM e DynamoDB Local. Não estão instalados na máquina de desenvolvimento atual.
 - AWS CLI v2 com o profile `hackaton` configurado (região `us-east-1`).
 - AWS CDK CLI (`npm install -g aws-cdk` ou `npx aws-cdk`).
 
@@ -55,6 +63,10 @@ Build para a nuvem (Cognito Hosted UI com PKCE): `npm run build -- --configurati
 cd backend
 mvn -q verify
 ```
+
+### Backend local com SAM e DynamoDB Local
+
+Exige Docker e AWS SAM CLI, que não estão instalados na máquina atual; por isso esse fluxo ainda não foi executado. Passo a passo em `infra/local/README.md` (DynamoDB Local via `docker compose`, `criar-tabela.sh`, `seed-local.sh` e `sam local start-api` na porta 3000).
 
 ## Testes
 
@@ -83,24 +95,30 @@ Na nuvem, os mesmos perfis viram grupos do Cognito User Pool. Os usuários de te
 
 ## Roteiro da demo
 
-Os dados vêm dos CSVs sintéticos de `data/` (Unidade_Macro "PR/CE"). A coluna "Local" diz se o passo já roda com `npm start` sem backend.
+Na nuvem, os dados vêm dos CSVs sintéticos de `data/` (Unidade_Macro "PR/CE"). Localmente, só com `npm start` e sem backend, as telas usam os dados de demonstração em memória do frontend. A coluna "Local" diz se o passo roda assim; "Deploy" indica que o passo exige o backend implantado na AWS (ou a execução local com SAM, que exige Docker e SAM CLI).
 
-| # | Passo | Como fazer | Local |
+| # | Passo | Como fazer | Local (dados de demonstração) |
 |---|---|---|---|
-| 1 | Login | Em `/login`, escolha Carla Solicitante. Na nuvem, entre pelo Hosted UI. | Sim |
+| 1 | Login | Em `/login`, escolha Carla Solicitante. Na nuvem, entre pelo Hosted UI. | Sim (login simulado) |
 | 2 | Painel | Veja suas reservas em `/painel/solicitante`. Saia e entre como Bruno Atendente para ver `/painel/atendente`. | Sim |
-| 3 | Conflito bloqueado | Em `/reservas/nova`, escolha um ambiente já reservado e um período sobreposto ou a menos de 30 min. Aparece `RN5: o ambiente já está reservado neste período...` e o envio fica bloqueado. | Sim (verificação simplificada) |
+| 3 | Conflito bloqueado | Em `/reservas/nova`, escolha um ambiente já reservado e um período sobreposto ou a menos de 30 min. Aparece `RN5: o ambiente já está reservado neste período...` e o envio fica bloqueado. | Sim (verificação simplificada no frontend) |
 | 4 | Reserva válida | Ajuste o período para um horário livre (30 min ou mais de folga) e salve. A reserva aparece na lista e no painel. | Sim (em memória) |
-| 5 | E-mail na Caixa_Simulada | Como Ana Administradora, abra `/caixa-simulada` e veja o e-mail enviado aos setores envolvidos. | Não (tela em construção) |
-| 6 | Pedido_SNP | No detalhe da reserva, confira o número e o link do Pedido_SNP para ambiente ou recurso com código de serviço. | Não (depende de `eventos`) |
-| 7 | Alteração com destaque | Altere período ou recursos da reserva. O e-mail de alteração e o histórico destacam os campos alterados. | Parcial (alteração em memória; destaque depende do backend) |
-| 8 | Cancelamento | Cancele a reserva. O status vira `CANCELADA`, o horário volta a ficar livre e os setores recebem a notificação. | Não (depende do backend) |
-| 9 | Exportação | No painel do atendente, exporte as reservas filtradas. | Não (depende de `exportacao`) |
-| 10 | Assistente | Em nova reserva, descreva o evento em texto livre. O assistente (Bedrock) propõe ambiente, disposição e recursos só dos catálogos enviados, para revisão antes de salvar. | Não (depende de `assistente`) |
+| 5 | E-mail na Caixa_Simulada | Como Ana Administradora, abra `/caixa-simulada` e veja o e-mail enviado aos setores envolvidos. | Parcial (mostra e-mails de exemplo fixos; e-mails reais da reserva exigem deploy) |
+| 6 | Pedido_SNP | No detalhe da reserva, confira o número e o link do Pedido_SNP para ambiente ou recurso com código de serviço. | Parcial (a reserva `DEMO-1` traz um pedido fictício; geração real exige deploy) |
+| 7 | Alteração com destaque | Altere período ou recursos da reserva. O e-mail de alteração e o histórico destacam os campos alterados. | Parcial (alteração em memória; destaque exige deploy) |
+| 8 | Cancelamento | Cancele a reserva. O status vira `CANCELADA`, o horário volta a ficar livre e os setores recebem a notificação. | Parcial (cancelamento em memória; notificação exige deploy) |
+| 9 | Exportação | No painel do atendente, exporte as reservas filtradas. | Parcial (CSV gerado no navegador com os dados de demonstração; PDF exige deploy) |
+| 10 | Assistente | Em nova reserva, descreva o evento em texto livre. O assistente (Bedrock) propõe ambiente, disposição e recursos só dos catálogos enviados, para revisão antes de salvar. | Não (exige deploy: Bedrock) |
 
 ## Deploy na AWS
 
-Veja `infra/README.md`. Ele traz bootstrap, deploy, envio do seed e destroy, sempre com `--profile hackaton` e região `us-east-1`.
+Antes de qualquer deploy, confirme a conta:
+
+```bash
+aws sts get-caller-identity --profile hackaton
+```
+
+Se falhar, renove as credenciais do profile `hackaton`; não use outro profile. Depois siga `infra/README.md` (bootstrap, deploy, envio do seed e destroy, sempre com `--profile hackaton` e região `us-east-1`). Nenhum deploy foi feito até agora.
 
 ## Segurança e LGPD
 

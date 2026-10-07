@@ -48,6 +48,7 @@
     <jackson.version>2.18.2</jackson.version>
     <jakarta.validation.version>3.1.0</jakarta.validation.version>
     <hibernate.validator.version>8.0.1.Final</hibernate.validator.version>
+    <pdfbox.version>3.0.3</pdfbox.version>
 
     <!-- Versões fixas de plugins -->
     <maven.compiler.plugin.version>3.13.0</maven.compiler.plugin.version>
@@ -147,6 +148,12 @@
         <groupId>org.mockito</groupId>
         <artifactId>mockito-junit-jupiter</artifactId>
         <version>${mockito.version}</version>
+      </dependency>
+      <!-- Geração de PDF (exportação) -->
+      <dependency>
+        <groupId>org.apache.pdfbox</groupId>
+        <artifactId>pdfbox</artifactId>
+        <version>${pdfbox.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

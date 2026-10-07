@@ -57,4 +57,17 @@ export class PainelAtendenteService {
       .set('fds', filtro.fds);
     return this.http.get<RespostaPainelAtendente>('/api/paineis/atendente', { params });
   }
+
+  /** Solicita a exportação com os filtros atuais; responde URL pré-assinada temporária (Req. 17.1). */
+  exportar(formato: FormatoExportacao, filtro: FiltroPainelAtendente): Observable<RespostaExportacao> {
+    return this.http.post<RespostaExportacao>('/api/exportacoes', { formato, ...filtro });
+  }
+}
+
+export type FormatoExportacao = 'csv' | 'pdf';
+
+export interface RespostaExportacao {
+  url: string;
+  /** Instante ISO-8601 de expiração da URL. */
+  expiraEm: string;
 }

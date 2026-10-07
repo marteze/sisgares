@@ -16,6 +16,11 @@
     </mat-form-field>
     <mat-checkbox [checked]="fds()" (change)="alterarFds($event.checked)">Exibir fins de semana</mat-checkbox>
   </form>
+  <div class="exportacao" role="group" aria-label="Exportar reservas com os filtros atuais">
+    <button mat-stroked-button type="button" (click)="exportar('csv')" [disabled]="exportando()">Exportar CSV</button>
+    <button mat-stroked-button type="button" (click)="exportar('pdf')" [disabled]="exportando()">Exportar PDF</button>
+  </div>
+  <p class="status" role="status" aria-live="polite">{{ mensagemExportacao() }}</p>
 
   @if (erroFiltro(); as erro) {
     <p class="erro" role="alert">{{ erro }}</p>
@@ -52,7 +57,7 @@
                         <dd>
                           <ul class="lista-simples">
                             @for (r of card.recursos; track r.descricao) {
-                              <li>{{ r.descricao }}@if (r.quantidade != null) { ({{ r.quantidade }}) }</li>
+                              <li>{{ r.descricao }}@if (r.quantidade !== undefined && r.quantidade !== null) { ({{ r.quantidade }}) }</li>
                             }
                           </ul>
                         </dd>

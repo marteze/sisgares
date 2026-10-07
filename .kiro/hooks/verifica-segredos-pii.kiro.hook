@@ -1,7 +1,7 @@
 {
   "enabled": true,
   "name": "Verifica segredos e dados pessoais",
-  "description": "Ao salvar qualquer arquivo, verifica se há segredos (chaves AWS, tokens, senhas) ou dados pessoais reais (CPFs, e-mails) e propõe correção (Requisito 19.4).",
+  "description": "Ao salvar qualquer arquivo, verifica se há segredos (chaves AWS, tokens, senhas) ou dados pessoais reais (CPFs, e-mails, telefones) e propõe correção (Requisito 19.4).",
   "version": "1",
   "when": {
     "type": "fileEdited",

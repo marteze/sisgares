@@ -11,6 +11,10 @@ import software.amazon.awscdk.Stack;
 import software.amazon.awscdk.StackProps;
 import software.amazon.awscdk.services.cloudwatch.Alarm;
 import software.amazon.awscdk.services.cloudwatch.ComparisonOperator;
+import software.amazon.awscdk.services.cloudwatch.Dashboard;
+import software.amazon.awscdk.services.cloudwatch.GraphWidget;
+import software.amazon.awscdk.services.cloudwatch.IMetric;
+import software.amazon.awscdk.services.cloudwatch.Metric;
 import software.amazon.awscdk.services.cloudwatch.MetricOptions;
 import software.amazon.awscdk.services.cloudwatch.TreatMissingData;
 import software.amazon.awscdk.services.cloudwatch.actions.SnsAction;
@@ -60,7 +64,7 @@ import software.constructs.Construct;
  * Stack de eventos: barramento EventBridge {@code sisgares-bus}, regra {@code Reserva*},
  * Step Functions {@code Fluxo_Pós_Reserva} com ramos paralelos Notificador e Cliente_SNP,
  * SQS DLQ cifrada com a CMK, alarme da DLQ e agendamento do republicador de outbox
- * (Req. 2.4, 2.5, 2.7, 23.1).
+ * (Req. 2.4, 2.5, 2.7, 21.1, 21.2, 21.3, 23.1).
  *
  * <p>Decisões de projeto:
  * <ul>
@@ -75,6 +79,12 @@ import software.constructs.Construct;
  *       na key policy da CMK (statement criado pela ApiStack).</li>
  *   <li><b>SES</b>: com o contexto {@code sesIdentidade} o Notificador recebe {@code ses:SendEmail}
  *       restrito ao ARN da identidade; sem ele, roda com {@code MODO_EMAIL=simulado} e sem SES.</li>
+ *   <li><b>Observabilidade (Req. 21)</b>: X-Ray ativo no Step Functions ({@code tracingEnabled}) e
+ *       em todas as Lambdas ({@code Tracing.ACTIVE}). A HTTP API (API Gateway v2) não oferece X-Ray
+ *       nativo; o rastreamento da API começa na Lambda integrada, que já tem X-Ray ativo. As
+ *       métricas de negócio vêm do backend em Embedded Metric Format (namespace {@code SISGARES});
+ *       há alarmes para DLQ ≥ 1, {@code FalhaNotificacao} ≥ 1 e {@code FalhaSnp} ≥ 1, todos no
+ *       tópico {@code sisgares-alarmes-eventos}, e o dashboard {@code sisgares-operacao}.</li>
  * </ul>
  */
 public class EventosStack extends Stack {
@@ -236,8 +246,64 @@ public class EventosStack extends Stack {
                 .build();
         alarmeDlq.addAlarmAction(new SnsAction(topicoAlarmes));
 
+        // ---------- Métricas de negócio (EMF, namespace SISGARES) ----------
+        Metric falhaNotificacao = metricaNegocio("FalhaNotificacao", Map.of());
+        Metric falhaSnp = metricaNegocio("FalhaSnp", Map.of());
+        alarmeFalha("AlarmeFalhaNotificacao", "sisgares-falha-notificacao", falhaNotificacao,
+                "Falha no envio de Notificação: verifique os logs de sisgares-notificador.", topicoAlarmes);
+        alarmeFalha("AlarmeFalhaSnp", "sisgares-falha-snp", falhaSnp,
+                "Falha ao registrar Pedido_SNP: verifique os logs de sisgares-cliente-snp.", topicoAlarmes);
+
+        // Dashboard simples de operação
+        List<IMetric> conflitos = List.of(
+                metricaNegocio("Conflito", Map.of("Regra", "RN5")),
+                metricaNegocio("Conflito", Map.of("Regra", "RN6")),
+                metricaNegocio("Conflito", Map.of("Regra", "RN7")));
+        Dashboard.Builder.create(this, "DashboardOperacao")
+                .dashboardName("sisgares-operacao")
+                .widgets(List.of(
+                        List.of(
+                                grafico("Reservas criadas", List.of(metricaNegocio("ReservaCriada", Map.of()))),
+                                grafico("Conflitos bloqueados (RN5/RN6/RN7)", conflitos)),
+                        List.of(
+                                grafico("Falhas de Notificação e Pedido_SNP", List.of(falhaNotificacao, falhaSnp)),
+                                grafico("Mensagens na DLQ", List.of(this.dlq.metricApproximateNumberOfMessagesVisible(
+                                        MetricOptions.builder().period(Duration.minutes(5))
+                                                .statistic("Maximum").build()))))))
+                .build();
+
         CfnOutput.Builder.create(this, "ArnBarramento").value(this.barramento.getEventBusArn()).build();
         CfnOutput.Builder.create(this, "UrlSnpMock").value(urlSnp.getUrl()).build();
+    }
+
+    /** Métrica de contagem publicada pelo backend via EMF (soma em 5 minutos). */
+    private static Metric metricaNegocio(final String nome, final Map<String, String> dimensoes) {
+        return Metric.Builder.create()
+                .namespace("SISGARES")
+                .metricName(nome)
+                .dimensionsMap(dimensoes)
+                .statistic("Sum")
+                .period(Duration.minutes(5))
+                .build();
+    }
+
+    /** Alarme de soma ≥ 1 no período, com ação no tópico SNS de alarmes. */
+    private void alarmeFalha(final String id, final String nome, final Metric metrica, final String descricao,
+                             final Topic topico) {
+        Alarm alarme = Alarm.Builder.create(this, id)
+                .alarmName(nome)
+                .alarmDescription(descricao)
+                .metric(metrica)
+                .threshold(1)
+                .evaluationPeriods(1)
+                .comparisonOperator(ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD)
+                .treatMissingData(TreatMissingData.NOT_BREACHING)
+                .build();
+        alarme.addAlarmAction(new SnsAction(topico));
+    }
+
+    private static GraphWidget grafico(final String titulo, final List<IMetric> metricas) {
+        return GraphWidget.Builder.create().title(titulo).left(metricas).width(12).height(6).build();
     }
 
     /** Par função/alias e role, usado para conceder permissões após a criação. */

@@ -28,16 +28,25 @@ paths:
       parameters:
         - name: minhas
           in: query
-          description: Quando `true`, somente as reservas do próprio Solicitante (GSI4).
-          schema: { type: boolean, default: false }
+          description: >-
+            Quando `true` (padrão), retorna somente as reservas do próprio Solicitante (GSI4).
+            Use `minhas=false` para listar as reservas da Unidade_Macro (restrito ao Administrador).
+            Qualquer valor diferente de `false` é tratado como `true`.
+          schema: { type: boolean, default: true }
         - name: de
           in: query
-          schema: { type: string, format: date-time }
-          example: "2025-06-02T00:00:00"
+          description: >-
+            Data inicial da janela (apenas quando `minhas=false`). Formato ISO-8601 `yyyy-MM-dd`.
+            Ausente, assume hoje menos 30 dias.
+          schema: { type: string, format: date }
+          example: "2025-06-02"
         - name: ate
           in: query
-          schema: { type: string, format: date-time }
-          example: "2025-06-06T23:59:59"
+          description: >-
+            Data final da janela (apenas quando `minhas=false`). Formato ISO-8601 `yyyy-MM-dd`.
+            Ausente, assume hoje mais 90 dias.
+          schema: { type: string, format: date }
+          example: "2025-06-06"
       responses:
         '200':
           description: Reservas encontradas
@@ -183,14 +192,22 @@ paths:
                 properties:
                   conflitos:
                     type: array
+                    description: Vazio quando o período está livre.
                     items:
                       type: object
+                      required: [codigo, mensagem, reservaId]
                       properties:
-                        codigo: { type: string, example: RN5 }
-                        mensagem: { type: string, example: "RN5: o ambiente já está reservado neste período." }
+                        codigo:
+                          type: string
+                          enum: [RN5_CONFLITO_HORARIO, RN6_CONFLITO_PAI_FILHO]
+                          example: RN5_CONFLITO_HORARIO
+                        mensagem:
+                          type: string
+                          example: "RN5: o ambiente já está reservado neste período (reserva 1042). Escolha outro horário ou ambiente."
                         reservaId: { type: string, example: "1042" }
         '400': { $ref: '#/components/responses/Erro400' }
         '401': { $ref: '#/components/responses/Erro401' }
+        '422': { $ref: '#/components/responses/Erro422' }
 
   /api/reservas/{id}/versoes:
     parameters:
@@ -266,11 +283,21 @@ paths:
         '403': { $ref: '#/components/responses/Erro403' }
         '405': { $ref: '#/components/responses/Erro405' }
 
+  # ------------------------------------------------------------------
+  # Catálogo (Req. 7): Setor_Envolvido, Ambiente, Disposição, Grupo_Recurso e Recurso.
+  # Consultas: qualquer perfil autenticado, exceto `setores` (só Administrador).
+  # Escritas (POST/PUT/PATCH/DELETE/imagem/vínculos) e `?todos=true`: somente Administrador (403 para os demais).
+  # Validações acumulam todas as violações (422). Rota inexistente sob /api/catalogo → 404.
+  # ------------------------------------------------------------------
+
   /api/catalogo/ambientes:
     get:
       tags: [catalogo]
-      summary: Lista ambientes da unidade
+      summary: Lista ambientes, ordenados pela descrição
+      description: Por padrão retorna apenas ativos. `todos=true` inclui inativos e exige Administrador.
       operationId: listarAmbientes
+      parameters:
+        - $ref: '#/components/parameters/Todos'
       responses:
         '200':
           description: Ambientes
@@ -278,45 +305,244 @@ paths:
             application/json:
               schema:
                 type: array
-                items:
-                  type: object
-                  required: [id, nome]
-                  properties:
-                    id: { $ref: '#/components/schemas/Id' }
-                    nome: { type: string, example: "Auditório Principal" }
-                    ativo: { type: boolean }
+                items: { $ref: '#/components/schemas/Ambiente' }
         '401': { $ref: '#/components/responses/Erro401' }
+        '403': { $ref: '#/components/responses/Erro403' }
+    post:
+      tags: [catalogo]
+      summary: Cria um ambiente (somente Administrador)
+      operationId: criarAmbiente
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AmbienteRequisicao' }
+            example: { descricao: "Auditório Principal", unidade: "PRDF", idPai: null }
+      responses:
+        '201':
+          description: Ambiente criado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Ambiente' }
+        '400': { $ref: '#/components/responses/Erro400' }
+        '401': { $ref: '#/components/responses/Erro401' }
+        '403': { $ref: '#/components/responses/Erro403' }
+        '422': { $ref: '#/components/responses/Erro422' }
 
-  /api/catalogo/recursos:
+  /api/catalogo/ambientes/{id}:
+    parameters:
+      - $ref: '#/components/parameters/IdCatalogo'
     get:
       tags: [catalogo]
-      summary: Lista recursos
-      operationId: listarRecursos
+      summary: Obtém um ambiente
+      operationId: obterAmbiente
       responses:
         '200':
-          description: Recursos
+          description: Ambiente
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Ambiente' }
+        '401': { $ref: '#/components/responses/Erro401' }
+        '404': { $ref: '#/components/responses/Erro404' }
+    put:
+      tags: [catalogo]
+      summary: Altera um ambiente (somente Administrador)
+      operationId: alterarAmbiente
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AmbienteRequisicao' }
+      responses:
+        '200':
+          description: Ambiente alterado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Ambiente' }
+        '400': { $ref: '#/components/responses/Erro400' }
+        '401': { $ref: '#/components/responses/Erro401' }
+        '403': { $ref: '#/components/responses/Erro403' }
+        '404': { $ref: '#/components/responses/Erro404' }
+        '422': { $ref: '#/components/responses/Erro422' }
+
+  /api/catalogo/ambientes/{id}/inativar:
+    parameters:
+      - $ref: '#/components/parameters/IdCatalogo'
+    patch:
+      tags: [catalogo]
+      summary: Inativa um ambiente (somente Administrador)
+      operationId: inativarAmbiente
+      responses:
+        '200':
+          description: Ambiente inativado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Ambiente' }
+        '401': { $ref: '#/components/responses/Erro401' }
+        '403': { $ref: '#/components/responses/Erro403' }
+        '404': { $ref: '#/components/responses/Erro404' }
+
+  /api/catalogo/ambientes/{id}/setores:
+    parameters:
+      - $ref: '#/components/parameters/IdCatalogo'
+    get:
+      tags: [catalogo]
+      summary: Lista os vínculos de Setor_Envolvido do ambiente, EAMB (somente Administrador)
+      operationId: listarSetoresDoAmbiente
+      responses:
+        '200':
+          description: Vínculos EAMB
           content:
             application/json:
               schema:
                 type: array
-                items:
-                  type: object
-                  required: [id, descricao, limitado]
-                  properties:
-                    id: { $ref: '#/components/schemas/Id' }
-                    descricao: { type: string, example: "Projetor multimídia" }
-                    limitado: { type: boolean }
-                    disponibilidade: { type: integer, example: 3 }
-                    grupoId: { type: string, example: "2" }
-                    grupoNome: { type: string, example: "Equipamentos" }
-                    grupoOrdem: { type: integer, example: 1 }
+                items: { $ref: '#/components/schemas/VinculoSetor' }
         '401': { $ref: '#/components/responses/Erro401' }
+        '403': { $ref: '#/components/responses/Erro403' }
+        '404': { $ref: '#/components/responses/Erro404' }
+    post:
+      tags: [catalogo]
+      summary: Vincula um Setor_Envolvido ao ambiente, EAMB (somente Administrador)
+      description: O setor deve pertencer à mesma Unidade_Macro do ambiente (SETOR_OUTRA_UNIDADE).
+      operationId: vincularSetorAmbiente
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/VinculoSetorRequisicao' }
+            example: { setorId: "2001", codServicoSnp: "SNP-ATEND-01" }
+      responses:
+        '201':
+          description: Vínculo criado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/VinculoSetor' }
+        '400': { $ref: '#/components/responses/Erro400' }
+        '401': { $ref: '#/components/responses/Erro401' }
+        '403': { $ref: '#/components/responses/Erro403' }
+        '404': { $ref: '#/components/responses/Erro404' }
+        '422': { $ref: '#/components/responses/Erro422' }
+
+  /api/catalogo/ambientes/{id}/setores/{setorId}:
+    parameters:
+      - $ref: '#/components/parameters/IdCatalogo'
+      - name: setorId
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/Id' }
+    delete:
+      tags: [catalogo]
+      summary: Remove o vínculo EAMB (somente Administrador)
+      operationId: desvincularSetorAmbiente
+      responses:
+        '204': { description: Vínculo removido }
+        '401': { $ref: '#/components/responses/Erro401' }
+        '403': { $ref: '#/components/responses/Erro403' }
+
+  /api/catalogo/setores:
+    get:
+      tags: [catalogo]
+      summary: Lista Setor_Envolvido, ordenados pela descrição (somente Administrador)
+      operationId: listarSetores
+      parameters:
+        - $ref: '#/components/parameters/Todos'
+      responses:
+        '200':
+          description: Setores
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Setor' }
+        '401': { $ref: '#/components/responses/Erro401' }
+        '403': { $ref: '#/components/responses/Erro403' }
+    post:
+      tags: [catalogo]
+      summary: Cria um Setor_Envolvido (somente Administrador)
+      operationId: criarSetor
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SetorRequisicao' }
+            example:
+              descricao: "Secretaria de Atendimento"
+              unidade: "PRDF"
+              email: "atendimento@exemplo.gov.br"
+              emailsAlternativos: ["protocolo@exemplo.gov.br"]
+      responses:
+        '201':
+          description: Setor criado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Setor' }
+        '400': { $ref: '#/components/responses/Erro400' }
+        '401': { $ref: '#/components/responses/Erro401' }
+        '403': { $ref: '#/components/responses/Erro403' }
+        '422': { $ref: '#/components/responses/Erro422' }
+
+  /api/catalogo/setores/{id}:
+    parameters:
+      - $ref: '#/components/parameters/IdCatalogo'
+    get:
+      tags: [catalogo]
+      summary: Obtém um Setor_Envolvido (somente Administrador)
+      operationId: obterSetor
+      responses:
+        '200':
+          description: Setor
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Setor' }
+        '401': { $ref: '#/components/responses/Erro401' }
+        '403': { $ref: '#/components/responses/Erro403' }
+        '404': { $ref: '#/components/responses/Erro404' }
+    put:
+      tags: [catalogo]
+      summary: Altera um Setor_Envolvido (somente Administrador)
+      operationId: alterarSetor
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SetorRequisicao' }
+      responses:
+        '200':
+          description: Setor alterado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Setor' }
+        '400': { $ref: '#/components/responses/Erro400' }
+        '401': { $ref: '#/components/responses/Erro401' }
+        '403': { $ref: '#/components/responses/Erro403' }
+        '404': { $ref: '#/components/responses/Erro404' }
+        '422': { $ref: '#/components/responses/Erro422' }
+
+  /api/catalogo/setores/{id}/inativar:
+    parameters:
+      - $ref: '#/components/parameters/IdCatalogo'
+    patch:
+      tags: [catalogo]
+      summary: Inativa um Setor_Envolvido (somente Administrador)
+      operationId: inativarSetor
+      responses:
+        '200':
+          description: Setor inativado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Setor' }
+        '401': { $ref: '#/components/responses/Erro401' }
+        '403': { $ref: '#/components/responses/Erro403' }
+        '404': { $ref: '#/components/responses/Erro404' }
 
   /api/catalogo/disposicoes:
     get:
       tags: [catalogo]
-      summary: Lista disposições de sala
+      summary: Lista disposições de sala, ordenadas pela descrição
+      description: Por padrão retorna apenas ativas. `todos=true` inclui inativas e exige Administrador.
       operationId: listarDisposicoes
+      parameters:
+        - $ref: '#/components/parameters/Todos'
       responses:
         '200':
           description: Disposições
@@ -324,15 +550,404 @@ paths:
             application/json:
               schema:
                 type: array
-                items:
-                  type: object
-                  required: [id, descricao]
-                  properties:
-                    id: { $ref: '#/components/schemas/Id' }
-                    descricao: { type: string, example: "Formato U" }
-                    imagem: { type: string, example: "formato-u.png" }
-                    alt: { type: string, example: "Mesas dispostas em formato de U" }
+                items: { $ref: '#/components/schemas/Disposicao' }
         '401': { $ref: '#/components/responses/Erro401' }
+        '403': { $ref: '#/components/responses/Erro403' }
+    post:
+      tags: [catalogo]
+      summary: Cria uma disposição (somente Administrador)
+      operationId: criarDisposicao
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/DisposicaoRequisicao' }
+            example: { descricao: "Formato U", alt: "Mesas dispostas em formato de U" }
+      responses:
+        '201':
+          description: Disposição criada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Disposicao' }
+        '400': { $ref: '#/components/responses/Erro400' }
+        '401': { $ref: '#/components/responses/Erro401' }
+        '403': { $ref: '#/components/responses/Erro403' }
+        '422': { $ref: '#/components/responses/Erro422' }
+
+  /api/catalogo/disposicoes/{id}:
+    parameters:
+      - $ref: '#/components/parameters/IdCatalogo'
+    get:
+      tags: [catalogo]
+      summary: Obtém uma disposição
+      operationId: obterDisposicao
+      responses:
+        '200':
+          description: Disposição
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Disposicao' }
+        '401': { $ref: '#/components/responses/Erro401' }
+        '404': { $ref: '#/components/responses/Erro404' }
+    put:
+      tags: [catalogo]
+      summary: Altera uma disposição (somente Administrador)
+      operationId: alterarDisposicao
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/DisposicaoRequisicao' }
+      responses:
+        '200':
+          description: Disposição alterada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Disposicao' }
+        '400': { $ref: '#/components/responses/Erro400' }
+        '401': { $ref: '#/components/responses/Erro401' }
+        '403': { $ref: '#/components/responses/Erro403' }
+        '404': { $ref: '#/components/responses/Erro404' }
+        '422': { $ref: '#/components/responses/Erro422' }
+
+  /api/catalogo/disposicoes/{id}/inativar:
+    parameters:
+      - $ref: '#/components/parameters/IdCatalogo'
+    patch:
+      tags: [catalogo]
+      summary: Inativa uma disposição (somente Administrador)
+      operationId: inativarDisposicao
+      responses:
+        '200':
+          description: Disposição inativada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Disposicao' }
+        '401': { $ref: '#/components/responses/Erro401' }
+        '403': { $ref: '#/components/responses/Erro403' }
+        '404': { $ref: '#/components/responses/Erro404' }
+
+  /api/catalogo/disposicoes/{id}/imagem:
+    parameters:
+      - $ref: '#/components/parameters/IdCatalogo'
+    post:
+      tags: [catalogo]
+      summary: Envia o ícone único da disposição em base64 (somente Administrador)
+      description: >-
+        Aceita JSON `{"conteudo":"<base64>"}` ou o corpo com a própria string base64 (inclusive data URL).
+        Valida assinatura, tamanho (até 2 MB) e SVG sanitizado; a imagem anterior é substituída.
+      operationId: enviarImagemDisposicao
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ImagemRequisicao' }
+            example: { conteudo: "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==" }
+      responses:
+        '200':
+          description: Disposição com a nova imagem
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Disposicao' }
+        '400': { $ref: '#/components/responses/Erro400' }
+        '401': { $ref: '#/components/responses/Erro401' }
+        '403': { $ref: '#/components/responses/Erro403' }
+        '404': { $ref: '#/components/responses/Erro404' }
+        '422': { $ref: '#/components/responses/Erro422' }
+
+  /api/catalogo/grupos:
+    get:
+      tags: [catalogo]
+      summary: Lista Grupo_Recurso, ordenados por ordem e descrição
+      description: Por padrão retorna apenas ativos. `todos=true` inclui inativos e exige Administrador.
+      operationId: listarGrupos
+      parameters:
+        - $ref: '#/components/parameters/Todos'
+      responses:
+        '200':
+          description: Grupos
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Grupo' }
+        '401': { $ref: '#/components/responses/Erro401' }
+        '403': { $ref: '#/components/responses/Erro403' }
+    post:
+      tags: [catalogo]
+      summary: Cria um Grupo_Recurso (somente Administrador)
+      operationId: criarGrupo
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/GrupoRequisicao' }
+            example: { descricao: "Equipamentos", ordem: 1 }
+      responses:
+        '201':
+          description: Grupo criado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Grupo' }
+        '400': { $ref: '#/components/responses/Erro400' }
+        '401': { $ref: '#/components/responses/Erro401' }
+        '403': { $ref: '#/components/responses/Erro403' }
+        '422': { $ref: '#/components/responses/Erro422' }
+
+  /api/catalogo/grupos/{id}:
+    parameters:
+      - $ref: '#/components/parameters/IdCatalogo'
+    get:
+      tags: [catalogo]
+      summary: Obtém um Grupo_Recurso
+      operationId: obterGrupo
+      responses:
+        '200':
+          description: Grupo
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Grupo' }
+        '401': { $ref: '#/components/responses/Erro401' }
+        '404': { $ref: '#/components/responses/Erro404' }
+    put:
+      tags: [catalogo]
+      summary: Altera um Grupo_Recurso (somente Administrador)
+      operationId: alterarGrupo
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/GrupoRequisicao' }
+      responses:
+        '200':
+          description: Grupo alterado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Grupo' }
+        '400': { $ref: '#/components/responses/Erro400' }
+        '401': { $ref: '#/components/responses/Erro401' }
+        '403': { $ref: '#/components/responses/Erro403' }
+        '404': { $ref: '#/components/responses/Erro404' }
+        '422': { $ref: '#/components/responses/Erro422' }
+
+  /api/catalogo/grupos/{id}/inativar:
+    parameters:
+      - $ref: '#/components/parameters/IdCatalogo'
+    patch:
+      tags: [catalogo]
+      summary: Inativa um Grupo_Recurso (somente Administrador)
+      operationId: inativarGrupo
+      responses:
+        '200':
+          description: Grupo inativado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Grupo' }
+        '401': { $ref: '#/components/responses/Erro401' }
+        '403': { $ref: '#/components/responses/Erro403' }
+        '404': { $ref: '#/components/responses/Erro404' }
+
+  /api/catalogo/recursos:
+    get:
+      tags: [catalogo]
+      summary: Lista recursos com grupo e ambientes permitidos, na ordem do grupo
+      description: Por padrão retorna apenas ativos. `todos=true` inclui inativos e exige Administrador.
+      operationId: listarRecursos
+      parameters:
+        - $ref: '#/components/parameters/Todos'
+      responses:
+        '200':
+          description: Recursos
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Recurso' }
+        '401': { $ref: '#/components/responses/Erro401' }
+        '403': { $ref: '#/components/responses/Erro403' }
+    post:
+      tags: [catalogo]
+      summary: Cria um recurso (somente Administrador)
+      operationId: criarRecurso
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RecursoRequisicao' }
+            example:
+              descricao: "Projetor multimídia"
+              grupoId: "2"
+              icone: "projetor"
+              unidade: "PRDF"
+              limitado: true
+              disponibilidade: 3
+      responses:
+        '201':
+          description: Recurso criado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Recurso' }
+        '400': { $ref: '#/components/responses/Erro400' }
+        '401': { $ref: '#/components/responses/Erro401' }
+        '403': { $ref: '#/components/responses/Erro403' }
+        '422': { $ref: '#/components/responses/Erro422' }
+
+  /api/catalogo/recursos/{id}:
+    parameters:
+      - $ref: '#/components/parameters/IdCatalogo'
+    get:
+      tags: [catalogo]
+      summary: Obtém um recurso
+      operationId: obterRecurso
+      responses:
+        '200':
+          description: Recurso
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Recurso' }
+        '401': { $ref: '#/components/responses/Erro401' }
+        '404': { $ref: '#/components/responses/Erro404' }
+    put:
+      tags: [catalogo]
+      summary: Altera um recurso (somente Administrador)
+      operationId: alterarRecurso
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RecursoRequisicao' }
+      responses:
+        '200':
+          description: Recurso alterado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Recurso' }
+        '400': { $ref: '#/components/responses/Erro400' }
+        '401': { $ref: '#/components/responses/Erro401' }
+        '403': { $ref: '#/components/responses/Erro403' }
+        '404': { $ref: '#/components/responses/Erro404' }
+        '422': { $ref: '#/components/responses/Erro422' }
+
+  /api/catalogo/recursos/{id}/inativar:
+    parameters:
+      - $ref: '#/components/parameters/IdCatalogo'
+    patch:
+      tags: [catalogo]
+      summary: Inativa um recurso (somente Administrador)
+      operationId: inativarRecurso
+      responses:
+        '200':
+          description: Recurso inativado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Recurso' }
+        '401': { $ref: '#/components/responses/Erro401' }
+        '403': { $ref: '#/components/responses/Erro403' }
+        '404': { $ref: '#/components/responses/Erro404' }
+
+  /api/catalogo/recursos/{id}/setores:
+    parameters:
+      - $ref: '#/components/parameters/IdCatalogo'
+    get:
+      tags: [catalogo]
+      summary: Lista os vínculos de Setor_Envolvido do recurso, EREC (somente Administrador)
+      operationId: listarSetoresDoRecurso
+      responses:
+        '200':
+          description: Vínculos EREC
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/VinculoSetor' }
+        '401': { $ref: '#/components/responses/Erro401' }
+        '403': { $ref: '#/components/responses/Erro403' }
+        '404': { $ref: '#/components/responses/Erro404' }
+    post:
+      tags: [catalogo]
+      summary: Vincula um Setor_Envolvido ao recurso, EREC (somente Administrador)
+      operationId: vincularSetorRecurso
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/VinculoSetorRequisicao' }
+            example: { setorId: "2001", codServicoSnp: null }
+      responses:
+        '201':
+          description: Vínculo criado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/VinculoSetor' }
+        '400': { $ref: '#/components/responses/Erro400' }
+        '401': { $ref: '#/components/responses/Erro401' }
+        '403': { $ref: '#/components/responses/Erro403' }
+        '404': { $ref: '#/components/responses/Erro404' }
+        '422': { $ref: '#/components/responses/Erro422' }
+
+  /api/catalogo/recursos/{id}/setores/{setorId}:
+    parameters:
+      - $ref: '#/components/parameters/IdCatalogo'
+      - name: setorId
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/Id' }
+    delete:
+      tags: [catalogo]
+      summary: Remove o vínculo EREC (somente Administrador)
+      operationId: desvincularSetorRecurso
+      responses:
+        '204': { description: Vínculo removido }
+        '401': { $ref: '#/components/responses/Erro401' }
+        '403': { $ref: '#/components/responses/Erro403' }
+
+  /api/catalogo/recursos/{id}/ambientes:
+    parameters:
+      - $ref: '#/components/parameters/IdCatalogo'
+    post:
+      tags: [catalogo]
+      summary: Vincula o recurso a um ambiente permitido, VREC (somente Administrador)
+      description: Devolve o recurso com a lista de ambientes permitidos atualizada.
+      operationId: vincularRecursoAmbiente
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/VinculoAmbienteRequisicao' }
+            example: { ambienteId: "1001" }
+      responses:
+        '201':
+          description: Recurso com os ambientes permitidos
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Recurso' }
+        '400': { $ref: '#/components/responses/Erro400' }
+        '401': { $ref: '#/components/responses/Erro401' }
+        '403': { $ref: '#/components/responses/Erro403' }
+        '404': { $ref: '#/components/responses/Erro404' }
+        '422': { $ref: '#/components/responses/Erro422' }
+
+  /api/catalogo/recursos/{id}/ambientes/{ambienteId}:
+    parameters:
+      - $ref: '#/components/parameters/IdCatalogo'
+      - name: ambienteId
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/Id' }
+    delete:
+      tags: [catalogo]
+      summary: Remove o vínculo VREC (somente Administrador)
+      description: Devolve o recurso com a lista de ambientes permitidos atualizada.
+      operationId: desvincularRecursoAmbiente
+      responses:
+        '200':
+          description: Recurso com os ambientes permitidos
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Recurso' }
+        '401': { $ref: '#/components/responses/Erro401' }
+        '403': { $ref: '#/components/responses/Erro403' }
+        '404': { $ref: '#/components/responses/Erro404' }
 
   /api/configuracao:
     get:
@@ -379,6 +994,18 @@ components:
       in: path
       required: true
       schema: { $ref: '#/components/schemas/Id' }
+    IdCatalogo:
+      name: id
+      in: path
+      required: true
+      schema: { $ref: '#/components/schemas/Id' }
+    Todos:
+      name: todos
+      in: query
+      description: >-
+        Quando `true`, inclui itens inativos (restrito ao Administrador). Qualquer outro valor é
+        tratado como `false` (apenas ativos).
+      schema: { type: boolean, default: false }
     DataReferencia:
       name: data
       in: query
@@ -491,6 +1118,182 @@ components:
           additionalProperties: { $ref: '#/components/schemas/FaixaHoraria' }
           example:
             PR-EX: { minimo: "08:00", maximo: "18:00" }
+
+    # ---------- Catálogo (Req. 7) ----------
+    AmbienteRequisicao:
+      type: object
+      required: [descricao, unidade]
+      properties:
+        descricao: { type: string, example: "Auditório Principal" }
+        unidade:
+          type: string
+          description: Unidade_Macro do ambiente.
+          example: "PRDF"
+        idPai:
+          type: string
+          nullable: true
+          description: Ambiente pai na árvore; nulo torna o ambiente raiz.
+          example: null
+    Ambiente:
+      type: object
+      required: [id, nome, ativo, unidade, raizId]
+      properties:
+        id: { $ref: '#/components/schemas/Id' }
+        nome:
+          type: string
+          description: Descrição do ambiente (nome exibido).
+          example: "Auditório Principal"
+        ativo: { type: boolean }
+        idPai: { type: string, nullable: true, example: null }
+        unidade: { type: string, example: "PRDF" }
+        raizId:
+          type: string
+          description: Ambiente raiz da subárvore a que este ambiente pertence.
+          example: "1001"
+    SetorRequisicao:
+      type: object
+      required: [descricao, unidade, email]
+      properties:
+        descricao: { type: string, example: "Secretaria de Atendimento" }
+        unidade: { type: string, example: "PRDF" }
+        email:
+          type: string
+          format: email
+          description: E-mail padrão do setor.
+          example: "atendimento@exemplo.gov.br"
+        emailsAlternativos:
+          type: array
+          items: { type: string, format: email }
+          example: ["protocolo@exemplo.gov.br"]
+    Setor:
+      type: object
+      required: [id, descricao, email, unidade, ativo]
+      properties:
+        id: { $ref: '#/components/schemas/Id' }
+        descricao: { type: string, example: "Secretaria de Atendimento" }
+        email: { type: string, format: email, example: "atendimento@exemplo.gov.br" }
+        emailsAlternativos:
+          type: array
+          items: { type: string, format: email }
+          example: ["protocolo@exemplo.gov.br"]
+        unidade: { type: string, example: "PRDF" }
+        ativo: { type: boolean }
+    DisposicaoRequisicao:
+      type: object
+      required: [descricao]
+      properties:
+        descricao: { type: string, example: "Formato U" }
+        alt:
+          type: string
+          description: Texto alternativo da imagem (acessibilidade).
+          example: "Mesas dispostas em formato de U"
+    Disposicao:
+      type: object
+      required: [id, descricao, ativo]
+      properties:
+        id: { $ref: '#/components/schemas/Id' }
+        descricao: { type: string, example: "Formato U" }
+        ativo: { type: boolean }
+        imagem:
+          type: string
+          nullable: true
+          description: Nome do arquivo do ícone no bucket; nulo quando ainda não enviado.
+          example: "disposicao-3.png"
+        alt: { type: string, nullable: true, example: "Mesas dispostas em formato de U" }
+    GrupoRequisicao:
+      type: object
+      required: [descricao]
+      properties:
+        descricao: { type: string, example: "Equipamentos" }
+        ordem:
+          type: integer
+          minimum: 0
+          description: Ordem de exibição; ausente assume 0.
+          example: 1
+    Grupo:
+      type: object
+      required: [id, descricao, ordem, ativo]
+      properties:
+        id: { $ref: '#/components/schemas/Id' }
+        descricao: { type: string, example: "Equipamentos" }
+        ordem: { type: integer, example: 1 }
+        ativo: { type: boolean }
+    RecursoRequisicao:
+      type: object
+      required: [descricao, grupoId, icone]
+      properties:
+        descricao: { type: string, example: "Projetor multimídia" }
+        grupoId:
+          allOf: [ { $ref: '#/components/schemas/Id' } ]
+          description: Grupo_Recurso existente.
+        icone: { type: string, example: "projetor" }
+        unidade:
+          type: string
+          nullable: true
+          description: Unidade_Macro; nula indica todas as unidades.
+          example: "PRDF"
+        limitado: { type: boolean, default: false }
+        disponibilidade:
+          type: integer
+          minimum: 1
+          description: Quantidade disponível; obrigatório (≥ 1) quando `limitado=true`.
+          example: 3
+    Recurso:
+      type: object
+      required: [id, descricao, ativo, limitado, ambientesPermitidos, icone]
+      properties:
+        id: { $ref: '#/components/schemas/Id' }
+        descricao: { type: string, example: "Projetor multimídia" }
+        ativo: { type: boolean }
+        limitado: { type: boolean }
+        disponibilidade:
+          type: integer
+          nullable: true
+          description: Preenchido somente quando `limitado=true`.
+          example: 3
+        grupoId: { type: string, nullable: true, example: "2" }
+        grupoNome: { type: string, nullable: true, example: "Equipamentos" }
+        grupoOrdem: { type: integer, nullable: true, example: 1 }
+        ambientesPermitidos:
+          type: array
+          description: Ids dos ambientes vinculados (VREC), em ordem crescente.
+          items: { $ref: '#/components/schemas/Id' }
+          example: ["1001", "1002"]
+        unidade: { type: string, nullable: true, example: "PRDF" }
+        icone: { type: string, nullable: true, example: "projetor" }
+    ImagemRequisicao:
+      type: object
+      required: [conteudo]
+      properties:
+        conteudo:
+          type: string
+          format: byte
+          description: Imagem em base64 (ou data URL). Até 2 MB.
+    VinculoSetorRequisicao:
+      type: object
+      required: [setorId]
+      properties:
+        setorId: { $ref: '#/components/schemas/Id' }
+        codServicoSnp:
+          type: string
+          nullable: true
+          description: Código do serviço no SNP associado ao vínculo.
+          example: "SNP-ATEND-01"
+    VinculoAmbienteRequisicao:
+      type: object
+      required: [ambienteId]
+      properties:
+        ambienteId: { $ref: '#/components/schemas/Id' }
+    VinculoSetor:
+      type: object
+      required: [id, setorId, alvoId]
+      properties:
+        id: { $ref: '#/components/schemas/Id' }
+        setorId: { $ref: '#/components/schemas/Id' }
+        alvoId:
+          allOf: [ { $ref: '#/components/schemas/Id' } ]
+          description: Ambiente (EAMB) ou recurso (EREC) vinculado.
+        codServicoSnp: { type: string, nullable: true, example: "SNP-ATEND-01" }
     Erro:
       type: object
       required: [erros, correlationId]
@@ -501,19 +1304,19 @@ components:
             type: object
             required: [codigo, mensagem]
             properties:
-              codigo: { type: string, example: RN5 }
-              mensagem: { type: string, example: "RN5: o ambiente já está reservado neste período." }
+              codigo: { type: string, example: RN5_CONFLITO_HORARIO }
+              mensagem: { type: string, example: "RN5: o ambiente já está reservado neste período (reserva 1042). Escolha outro horário ou ambiente." }
               campo: { type: string, nullable: true, example: "periodos[0]" }
         correlationId: { type: string, example: "3f1c2a9e-0b7d-4c55-9a11-6e2f0d4b8c21" }
 
   responses:
     Erro400:
-      description: JSON malformado (SCHEMA_INVALIDO)
+      description: JSON malformado ou parâmetro de consulta inválido (SCHEMA_INVALIDO)
       content:
         application/json:
           schema: { $ref: '#/components/schemas/Erro' }
           example:
-            erros: [ { codigo: SCHEMA_INVALIDO, mensagem: "O corpo da requisição não é um JSON válido." } ]
+            erros: [ { codigo: SCHEMA_INVALIDO, mensagem: "Requisição inválida. Corrija o corpo conforme o contrato da API." } ]
             correlationId: "3f1c2a9e-0b7d-4c55-9a11-6e2f0d4b8c21"
     Erro401:
       description: Token ausente ou inválido
@@ -526,7 +1329,7 @@ components:
         application/json:
           schema: { $ref: '#/components/schemas/Erro' }
     Erro404:
-      description: Reserva não encontrada
+      description: Registro ou rota não encontrada (NAO_ENCONTRADO)
       content:
         application/json:
           schema: { $ref: '#/components/schemas/Erro' }
@@ -536,7 +1339,7 @@ components:
         application/json:
           schema: { $ref: '#/components/schemas/Erro' }
     Erro409:
-      description: Conflito de concorrência (RN7) ou período ocupado
+      description: Conflito de concorrência otimista (RN7_CONFLITO_AO_SALVAR)
       content:
         application/json:
           schema: { $ref: '#/components/schemas/Erro' }
@@ -544,10 +1347,15 @@ components:
             erros: [ { codigo: RN7_CONFLITO_AO_SALVAR, mensagem: "RN7: a reserva foi alterada por outra pessoa. Recarregue e tente novamente." } ]
             correlationId: "3f1c2a9e-0b7d-4c55-9a11-6e2f0d4b8c21"
     Erro422:
-      description: Validação de campos (CAMPO_INVALIDO, CAMPO_NAO_PERMITIDO) ou regra de negócio (RNx)
+      description: >-
+        Validação de campos (CAMPO_INVALIDO, CAMPO_NAO_PERMITIDO, corpo ausente) ou regra de negócio
+        (RNx). Acumula todas as violações encontradas. Em verificar-periodo, AMBIENTE_INDISPONIVEL
+        indica ambiente inexistente.
       content:
         application/json:
           schema: { $ref: '#/components/schemas/Erro' }
           example:
-            erros: [ { codigo: RN1, mensagem: "RN1: a reserva exige antecedência mínima de 60 minutos." } ]
+            erros:
+              - { codigo: RN1_SEM_PERIODO, mensagem: "RN1: informe ao menos um período para a reserva.", campo: "periodos" }
+              - { codigo: CAMPO_INVALIDO, mensagem: "A finalidade deve ter no máximo 2000 caracteres.", campo: "finalidade" }
             correlationId: "3f1c2a9e-0b7d-4c55-9a11-6e2f0d4b8c21"

@@ -1,6 +1,7 @@
 package br.mp.mpf.sisgares.eventos.snp;
 
 import br.mp.mpf.sisgares.comumaws.http.LogEstruturado;
+import br.mp.mpf.sisgares.comumaws.http.Metricas;
 import br.mp.mpf.sisgares.dominio.Reserva;
 import br.mp.mpf.sisgares.dominio.Solicitacao;
 import br.mp.mpf.sisgares.eventos.notificador.EventoReserva;
@@ -42,6 +43,7 @@ public final class ClienteSnp {
     private final RegistroIdempotencia idempotencia;
     private final Clock clock;
     private final LogEstruturado log;
+    private final Metricas metricas;
 
     /**
      * @param endpoint fornecedor da URL do SNP na Configuração (lida a cada evento, com cache do repositório)
@@ -54,6 +56,7 @@ public final class ClienteSnp {
         this.idempotencia = Objects.requireNonNull(idempotencia, "idempotencia");
         this.clock = Objects.requireNonNull(clock, "clock");
         this.log = Objects.requireNonNull(log, "log");
+        this.metricas = new Metricas(this.clock);
     }
 
     /** Resultado devolvido ao Step Functions. */
@@ -119,6 +122,8 @@ public final class ClienteSnp {
             return resultado;
         } catch (RuntimeException e) {
             idempotencia.falhar(evento.eventoId());
+            // Uma métrica por tentativa falha do evento (Req. 21.2)
+            metricas.contar(Metricas.FALHA_SNP);
             throw e;
         }
     }
