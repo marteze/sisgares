@@ -1,0 +1,48 @@
+<a class="pular" href="#conteudo-principal">Pular para o conteúdo</a>
+<!-- Barra de acessibilidade (eMAG): atalhos de teclado via accesskey. -->
+<nav class="atalhos" aria-label="Atalhos de acessibilidade">
+  <ul>
+    <li><a href="#conteudo-principal" accesskey="1">Ir para o conteúdo [1]</a></li>
+    @if (menu().length) {
+      <li><a href="#menu-principal" accesskey="2">Ir para o menu [2]</a></li>
+    }
+  </ul>
+</nav>
+
+<header>
+  <mat-toolbar class="barra">
+    <h1 class="titulo">{{ titulo }}</h1>
+    <span class="espaco"></span>
+    @if (auth.usuario(); as usuario) {
+      <span class="usuario">{{ usuario.nome }} <span class="perfil">({{ perfis() }})</span></span>
+      <button mat-button type="button" (click)="sair()">
+        <mat-icon aria-hidden="true">logout</mat-icon>
+        Sair
+      </button>
+    }
+  </mat-toolbar>
+
+  @if (menu().length) {
+    <nav id="menu-principal" aria-label="Menu principal" class="menu" tabindex="-1">
+      <ul>
+        @for (item of menu(); track item.rota) {
+          <li>
+            <a
+              [routerLink]="item.rota"
+              routerLinkActive="ativo"
+              [routerLinkActiveOptions]="{ exact: true }"
+              ariaCurrentWhenActive="page"
+            >
+              <mat-icon aria-hidden="true">{{ item.icone }}</mat-icon>
+              {{ item.rotulo }}
+            </a>
+          </li>
+        }
+      </ul>
+    </nav>
+  }
+</header>
+
+<main id="conteudo-principal" tabindex="-1">
+  <router-outlet />
+</main>

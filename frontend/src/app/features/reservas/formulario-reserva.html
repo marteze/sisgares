@@ -1,0 +1,218 @@
+<section class="reserva" aria-labelledby="titulo-pagina">
+  <h2 id="titulo-pagina" tabindex="-1">{{ reservaId ? 'Reserva ' + reservaId : 'Nova reserva' }}</h2>
+
+  <p class="status" [class.aviso-demo]="demonstracao()" role="status" aria-live="polite">{{ mensagemStatus() }}</p>
+
+  <!-- Erros bloqueantes do backend (422/409), anunciados de forma assertiva (Req. 20.5). -->
+  <div id="resumo-erros" class="resumo-erros" tabindex="-1" aria-live="assertive" role="alert" [hidden]="!errosApi().length">
+    @if (errosApi().length) {
+      <p><strong>{{ tituloErros() }}: {{ errosApi().length }} erro(s).</strong> {{ operacaoErro() === 'cancelar' ? 'Veja o motivo abaixo.' : 'Corrija os campos indicados.' }}</p>
+      <p class="sr-only">{{ resumoErros() }}</p>
+      @if (errosGerais().length) {
+        <ul>
+          @for (e of errosGerais(); track $index) {
+            <li>{{ e.mensagem }}</li>
+          }
+        </ul>
+      }
+    }
+  </div>
+
+  @if (naoEncontrada()) {
+    <p role="alert">Reserva não encontrada ou sem permissão de acesso. <a routerLink="/reservas">Voltar à lista de reservas</a>.</p>
+  } @else if (!carregando()) {
+    <!-- Cabeçalho: Solicitante, status, última alteração e Pedidos SNP (Req. 9.3, 14.6). -->
+    <dl class="cabecalho" aria-label="Dados da reserva">
+      <div><dt>Solicitante</dt><dd>{{ nomeSolicitante() }}</dd></div>
+      <div>
+        <dt>Status</dt>
+        <dd>{{ reserva()?.status ? textoStatus[reserva()!.status!] : 'Nova (ainda não salva)' }}</dd>
+      </div>
+      <div>
+        <dt>Última alteração</dt>
+        <dd>{{ reserva()?.ultimaAlteracao ? formatar(reserva()!.ultimaAlteracao) : '—' }}</dd>
+      </div>
+      <div>
+        <dt>Pedidos SNP</dt>
+        <dd>
+          @for (p of reserva()?.pedidosSnp ?? []; track p.numero; let ultimo = $last) {
+            <a [href]="p.link" target="_blank" rel="noopener noreferrer">Pedido {{ p.numero }}<span class="sr-only"> (abre em nova aba)</span></a>@if (!ultimo) {, }
+          } @empty {
+            Nenhum
+          }
+        </dd>
+      </div>
+    </dl>
+
+    <form [formGroup]="form" (ngSubmit)="salvar()" novalidate aria-describedby="resumo-erros">
+      <fieldset>
+        <legend>Local</legend>
+        <mat-form-field appearance="outline" class="largo">
+          <mat-label>Ambiente</mat-label>
+          <mat-select formControlName="ambienteId" aria-describedby="erro-ambiente">
+            <mat-option [value]="LOCAL_PROPRIO">Não solicitado / local próprio</mat-option>
+            @for (a of ambientesAtivos(); track a.id) {
+              <mat-option [value]="a.id">{{ a.nome }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <div id="erro-ambiente" class="erros-campo" aria-live="polite">
+          @for (e of errosDe('ambienteId'); track $index) { <p>{{ e.mensagem }}</p> }
+        </div>
+
+        @if (!localProprio()) {
+          <div class="disposicao">
+            <mat-form-field appearance="outline" class="largo">
+              <mat-label>Disposição (opcional)</mat-label>
+              <mat-select formControlName="disposicaoId" aria-describedby="erro-disposicao">
+                <mat-option [value]="null">Sem disposição definida</mat-option>
+                @for (d of disposicoes(); track d.id) {
+                  <mat-option [value]="d.id">{{ d.descricao }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            @if (disposicaoSelecionada(); as d) {
+              <figure>
+                <img [src]="d.src" [alt]="d.alt" width="240" height="160" loading="lazy" />
+                <figcaption>{{ d.descricao }}</figcaption>
+              </figure>
+            }
+            <div id="erro-disposicao" class="erros-campo" aria-live="polite">
+              @for (e of errosDe('disposicaoId'); track $index) { <p>{{ e.mensagem }}</p> }
+            </div>
+          </div>
+        }
+
+        <mat-form-field appearance="outline" class="largo">
+          <mat-label>Complemento do ambiente{{ localProprio() ? ' (obrigatório para local próprio)' : '' }}</mat-label>
+          <input matInput formControlName="complemento" [required]="localProprio()" aria-describedby="erro-complemento" />
+        </mat-form-field>
+        <div id="erro-complemento" class="erros-campo" aria-live="polite">
+          @for (e of errosDe('complemento'); track $index) { <p>{{ e.mensagem }}</p> }
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Evento</legend>
+        <mat-form-field appearance="outline" class="largo">
+          <mat-label>Finalidade</mat-label>
+          <textarea matInput formControlName="finalidade" rows="3" required aria-describedby="erro-finalidade"></textarea>
+          @if (form.controls.finalidade.touched && form.controls.finalidade.invalid) {
+            <mat-error>Informe a finalidade da reserva.</mat-error>
+          }
+        </mat-form-field>
+        <div id="erro-finalidade" class="erros-campo" aria-live="polite">
+          @for (e of errosDe('finalidade'); track $index) { <p>{{ e.mensagem }}</p> }
+        </div>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Quantidade de participantes</mat-label>
+          <input matInput type="number" min="1" formControlName="participantes" required aria-describedby="erro-participantes" />
+          @if (form.controls.participantes.touched && form.controls.participantes.invalid) {
+            <mat-error>Informe ao menos 1 participante.</mat-error>
+          }
+        </mat-form-field>
+        <div id="erro-participantes" class="erros-campo" aria-live="polite">
+          @for (e of errosDe('participantes'); track $index) { <p>{{ e.mensagem }}</p> }
+        </div>
+      </fieldset>
+
+      <fieldset formArrayName="periodos">
+        <legend>Períodos</legend>
+        <div id="erro-periodos" class="erros-campo" aria-live="polite">
+          @for (e of errosApi(); track $index) {
+            @if (e.campo === 'periodos') { <p>{{ e.mensagem }}</p> }
+          }
+        </div>
+        @for (p of periodos.controls; track p; let i = $index) {
+          @let estado = estadoPeriodo(p);
+          <div class="periodo" [formGroupName]="i" role="group" [attr.aria-labelledby]="'rotulo-periodo-' + i">
+            <h3 [id]="'rotulo-periodo-' + i">Período {{ i + 1 }}</h3>
+            <mat-form-field appearance="outline">
+              <mat-label>Início</mat-label>
+              <input matInput type="datetime-local" formControlName="inicio" required
+                     (change)="verificarPeriodo(p)" [attr.aria-describedby]="'aviso-periodo-' + i" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Término</mat-label>
+              <input matInput type="datetime-local" formControlName="termino" required
+                     (change)="verificarPeriodo(p)" [attr.aria-describedby]="'aviso-periodo-' + i" />
+            </mat-form-field>
+            @if (periodos.length > 1) {
+              <button mat-stroked-button type="button" (click)="removerPeriodo(i)">Remover período {{ i + 1 }}</button>
+            }
+            <!-- Resultado da verificação de conflito ao lado do Período (Req. 10.5). -->
+            <div [id]="'aviso-periodo-' + i" class="aviso-periodo" aria-live="polite">
+              @if (estado?.verificando) {
+                <p>Verificando conflitos do período {{ i + 1 }}…</p>
+              } @else if (estado?.falha) {
+                <p class="erro-texto">⚠ {{ estado!.falha }}</p>
+              } @else if (estado?.conflitos?.length) {
+                @for (c of estado!.conflitos; track $index) {
+                  <p class="erro-texto">
+                    ⚠ Conflito no período {{ i + 1 }}: {{ c.mensagem }}
+                    @if (c.reservaId) { <a [routerLink]="['/reservas', c.reservaId]">Ver reserva {{ c.reservaId }}</a> }
+                  </p>
+                }
+              } @else if (estado) {
+                <p class="ok-texto">✓ Período {{ i + 1 }} sem conflitos.</p>
+              }
+              @for (e of errosDe('periodos[' + i + ']'); track $index) {
+                <p class="erro-texto">⚠ {{ e.mensagem }}</p>
+              }
+            </div>
+          </div>
+        }
+        <button mat-stroked-button type="button" (click)="adicionarPeriodo()">Adicionar período</button>
+      </fieldset>
+
+      <fieldset>
+        <legend>Recursos</legend>
+        @for (g of gruposRecursos(); track g.nome) {
+          <fieldset class="grupo-recursos">
+            <legend>{{ g.nome }}</legend>
+            @for (r of g.recursos; track r.id) {
+              @let idx = indiceRecurso(r.id);
+              <div class="recurso">
+                <mat-checkbox [checked]="idx >= 0" (change)="alternarRecurso(r, $event.checked)"
+                              [aria-describedby]="'erro-recurso-' + r.id">
+                  {{ r.descricao }}@if (r.limitado) { (limitado: {{ r.disponibilidade }} disponíveis) }
+                </mat-checkbox>
+                <!-- Quantidade apenas para Recurso_Limitado (Req. 11.1). -->
+                @if (r.limitado && idx >= 0) {
+                  <ng-container formArrayName="recursos">
+                    <ng-container [formGroupName]="idx">
+                      <mat-form-field appearance="outline" class="quantidade">
+                        <mat-label>Quantidade de {{ r.descricao }}</mat-label>
+                        <input matInput type="number" min="1" [max]="r.disponibilidade ?? null"
+                               formControlName="quantidade" required [attr.aria-describedby]="'erro-recurso-' + r.id" />
+                      </mat-form-field>
+                    </ng-container>
+                  </ng-container>
+                }
+                <div [id]="'erro-recurso-' + r.id" class="erros-campo" aria-live="polite">
+                  @for (e of errosRecurso(r.id); track $index) { <p>{{ e.mensagem }}</p> }
+                </div>
+              </div>
+            }
+          </fieldset>
+        } @empty {
+          <p>Nenhum recurso disponível para o ambiente escolhido.</p>
+        }
+      </fieldset>
+
+      <div class="acoes">
+        <button mat-flat-button type="submit" [disabled]="salvando()">
+          {{ reservaId ? 'Salvar alterações' : 'Cadastrar reserva' }}
+        </button>
+        @if (podeCancelar()) {
+          <button mat-stroked-button type="button" class="botao-cancelar" (click)="pedirCancelamento()"
+                  [disabled]="cancelando()" aria-haspopup="dialog">
+            Cancelar reserva
+          </button>
+        }
+        <a mat-stroked-button routerLink="/reservas">Voltar à lista</a>
+      </div>
+    </form>
+  }
+</section>

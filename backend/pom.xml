@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  POM pai do backend SISGARES (Maven multimódulo).
+  Ordem de dependências: contextos -> comum-aws -> dominio.
+  O módulo dominio é Java puro, sem nenhuma dependência AWS (verificado pelo maven-enforcer).
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>br.mp.mpf.sisgares</groupId>
+  <artifactId>sisgares-backend</artifactId>
+  <version>0.1.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <name>SISGARES - Backend</name>
+
+  <modules>
+    <!-- Núcleo de domínio (Java puro) -->
+    <module>dominio</module>
+    <!-- Adaptadores AWS compartilhados (DynamoDB, AVP, logs) -->
+    <module>comum-aws</module>
+    <!-- Contextos (Lambdas) -->
+    <module>catalogo</module>
+    <module>reservas</module>
+    <module>paineis</module>
+    <module>configuracao</module>
+    <module>eventos</module>
+    <module>seed</module>
+    <module>assistente</module>
+    <module>exportacao</module>
+  </modules>
+
+  <properties>
+    <maven.compiler.release>21</maven.compiler.release>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+    <!-- Versões fixas de bibliotecas -->
+    <junit.version>5.11.3</junit.version>
+    <assertj.version>3.26.3</assertj.version>
+    <jqwik.version>1.9.1</jqwik.version>
+    <mockito.version>5.14.2</mockito.version>
+    <testcontainers.version>1.20.3</testcontainers.version>
+    <aws.sdk.version>2.29.0</aws.sdk.version>
+    <aws.lambda.core.version>1.2.3</aws.lambda.core.version>
+    <aws.lambda.events.version>3.14.0</aws.lambda.events.version>
+    <jackson.version>2.18.2</jackson.version>
+    <jakarta.validation.version>3.1.0</jakarta.validation.version>
+    <hibernate.validator.version>8.0.1.Final</hibernate.validator.version>
+
+    <!-- Versões fixas de plugins -->
+    <maven.compiler.plugin.version>3.13.0</maven.compiler.plugin.version>
+    <maven.surefire.plugin.version>3.5.2</maven.surefire.plugin.version>
+    <maven.enforcer.plugin.version>3.5.0</maven.enforcer.plugin.version>
+  </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <!-- Módulos internos -->
+      <dependency>
+        <groupId>br.mp.mpf.sisgares</groupId>
+        <artifactId>dominio</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>br.mp.mpf.sisgares</groupId>
+        <artifactId>comum-aws</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <!-- BOMs -->
+      <dependency>
+        <groupId>org.junit</groupId>
+        <artifactId>junit-bom</artifactId>
+        <version>${junit.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.testcontainers</groupId>
+        <artifactId>testcontainers-bom</artifactId>
+        <version>${testcontainers.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>software.amazon.awssdk</groupId>
+        <artifactId>bom</artifactId>
+        <version>${aws.sdk.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+
+      <!-- AWS Lambda -->
+      <dependency>
+        <groupId>com.amazonaws</groupId>
+        <artifactId>aws-lambda-java-core</artifactId>
+        <version>${aws.lambda.core.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.amazonaws</groupId>
+        <artifactId>aws-lambda-java-events</artifactId>
+        <version>${aws.lambda.events.version}</version>
+      </dependency>
+
+      <!-- JSON -->
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-databind</artifactId>
+        <version>${jackson.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.datatype</groupId>
+        <artifactId>jackson-datatype-jsr310</artifactId>
+        <version>${jackson.version}</version>
+      </dependency>
+
+      <!-- Bean Validation (validação de DTOs, Req. 6.3) -->
+      <dependency>
+        <groupId>jakarta.validation</groupId>
+        <artifactId>jakarta.validation-api</artifactId>
+        <version>${jakarta.validation.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.hibernate.validator</groupId>
+        <artifactId>hibernate-validator</artifactId>
+        <version>${hibernate.validator.version}</version>
+      </dependency>
+      <!-- Testes -->
+      <dependency>
+        <groupId>org.assertj</groupId>
+        <artifactId>assertj-core</artifactId>
+        <version>${assertj.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>net.jqwik</groupId>
+        <artifactId>jqwik</artifactId>
+        <version>${jqwik.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-core</artifactId>
+        <version>${mockito.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-junit-jupiter</artifactId>
+        <version>${mockito.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <!-- Dependências de teste comuns a todos os módulos (nenhuma é AWS) -->
+  <dependencies>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>net.jqwik</groupId>
+      <artifactId>jqwik</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>${maven.compiler.plugin.version}</version>
+          <configuration>
+            <release>21</release>
+            <!-- Mantém nomes de parâmetros (útil para jqwik e serialização) -->
+            <parameters>true</parameters>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>${maven.surefire.plugin.version}</version>
+          <configuration>
+            <!--
+              O surefire usa o JUnit Platform, que executa tanto o engine
+              Jupiter quanto o engine do jqwik. Os padrões abaixo incluem
+              também as classes de propriedades (*Properties).
+            -->
+            <includes>
+              <include>**/*Test.java</include>
+              <include>**/*Tests.java</include>
+              <include>**/*Properties.java</include>
+            </includes>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-enforcer-plugin</artifactId>
+          <version>${maven.enforcer.plugin.version}</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+
+    <plugins>
+      <!-- Regras globais: Java 21+ e Maven 3.9+ -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>regras-globais</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <requireJavaVersion>
+                  <version>[21,)</version>
+                </requireJavaVersion>
+                <requireMavenVersion>
+                  <version>[3.9,)</version>
+                </requireMavenVersion>
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>

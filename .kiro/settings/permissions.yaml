@@ -1,0 +1,4 @@
+# .kiro/settings/permissions.yaml
+rules:
+  - capability: shell
+    effect: allow

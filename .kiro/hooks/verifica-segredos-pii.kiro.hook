@@ -1,0 +1,16 @@
+{
+  "enabled": true,
+  "name": "Verifica segredos e dados pessoais",
+  "description": "Ao salvar qualquer arquivo, verifica se há segredos (chaves AWS, tokens, senhas) ou dados pessoais reais (CPFs, e-mails) e propõe correção (Requisito 19.4).",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "**/*"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Revise o arquivo que acabou de ser salvo e verifique se ele contém segredos ou dados pessoais reais, conforme a steering seguranca-lgpd.md:\n\n1. Segredos: chaves de acesso AWS (por exemplo, prefixos AKIA/ASIA e secret keys de 40 caracteres), session tokens, tokens JWT ou de API, senhas, strings de conexão com credenciais e chaves privadas.\n2. Dados pessoais: CPFs válidos que não sejam claramente gerados para teste, e-mails, telefones e nomes de pessoas reais.\n\nRegras de aceitação:\n- São permitidos apenas domínios fictícios, como exemplo.gov.br, example.com e similares.\n- E-mails de setores presentes nos CSVs sintéticos do MPF (data/ e dados/) continuam permitidos, pois são dados sintéticos do kit do hackathon.\n- Referências a nomes de profiles, parâmetros do SSM ou segredos do Secrets Manager (sem o valor) são permitidas.\n\nSe encontrar algo, alerte em português indicando arquivo e linha sem repetir o valor sensível por completo (mascare-o), e proponha a correção: mover o segredo para Secrets Manager/SSM ou variável de ambiente, trocar o dado real por dado fictício (CPF gerado, e-mail em exemplo.gov.br) ou aplicar MascaradorDados.mascarar em logs. Se não encontrar nada, responda apenas que o arquivo está limpo."
+  }
+}

@@ -1,0 +1,89 @@
+<section class="painel" aria-labelledby="titulo-pagina">
+  <h2 id="titulo-pagina" tabindex="-1">Painel do solicitante</h2>
+
+  <form class="filtros" aria-label="Filtros da grade" (submit)="$event.preventDefault()">
+    <mat-form-field appearance="outline" class="campo-ambiente">
+      <mat-label>Ambiente</mat-label>
+      <mat-select [value]="ambiente()" (valueChange)="alterarAmbiente($event)" required>
+        @for (a of ambientes(); track a.id) {
+          <mat-option [value]="a.id">{{ a.nome }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Data de referência</mat-label>
+      <input matInput type="date" [value]="data()" (change)="alterarData($any($event.target).value)" required />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Colunas (datas)</mat-label>
+      <mat-select [value]="colunas()" (valueChange)="alterarColunas($event)">
+        @for (n of opcoesColunas; track n) {
+          <mat-option [value]="n">{{ n }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-checkbox [checked]="fds()" (change)="alterarFds($event.checked)">Exibir fins de semana</mat-checkbox>
+  </form>
+
+  @if (erroFiltro(); as erro) {
+    <p class="erro" role="alert">{{ erro }}</p>
+  }
+
+  <p class="status" [class.aviso-demo]="demonstracao() && !carregando()" aria-live="polite" role="status">
+    {{ mensagemStatus() }}
+  </p>
+
+  @if (colunasVisao().length) {
+    <div class="grade-rolagem" tabindex="0" role="region" aria-label="Grade de horários (role para ver mais datas)">
+      <table class="grade">
+        <caption>
+          Horários de 30 minutos de {{ nomeAmbiente() }}
+          @if (demonstracao()) { (dados de demonstração) }
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col">Horário</th>
+            @for (c of colunasVisao(); track c.data) {
+              <th scope="col">
+                <span class="dia-semana">{{ c.diaSemana }}</span>
+                <span>{{ c.rotulo }}</span>
+              </th>
+            }
+          </tr>
+        </thead>
+        <tbody>
+          @for (h of horarios(); track h) {
+            <tr>
+              <th scope="row">{{ h }}</th>
+              @for (c of colunasVisao(); track c.data) {
+                @let cel = celula(c, h);
+                <td [class]="'estado-' + cel.estado.toLowerCase()">
+                  @switch (cel.estado) {
+                    @case ('LIVRE') {
+                      <a [routerLink]="['/reservas/nova']" [queryParams]="paramsReserva(c, h)"
+                         [attr.aria-label]="cel.texto + ' em ' + c.rotulo">{{ cel.texto }}</a>
+                    }
+                    @case ('OCUPADO') {
+                      @if (cel.reservaId) {
+                        <a [routerLink]="['/reservas', cel.reservaId]"
+                           [attr.aria-label]="'Reservado em ' + c.rotulo + ' às ' + h + ': abrir reserva'">Reservado (ver reserva)</a>
+                      } @else {
+                        <span>{{ cel.texto }}</span>
+                      }
+                    }
+                    @default {
+                      <span>{{ cel.texto }}</span>
+                    }
+                  }
+                </td>
+              }
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>

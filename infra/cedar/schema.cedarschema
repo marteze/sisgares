@@ -1,0 +1,44 @@
+// Schema Cedar do SISGARES usado pelo Amazon Verified Permissions (Requisito 5).
+// Grupos do Cognito: "Administrador", "Setor_Atendente" e "Solicitante".
+// Unidade_Macro e Setor_Envolvido são representados por seus IDs (String).
+namespace Sisgares {
+  // Usuário autenticado (principal). Montado a partir das claims do JWT do Cognito.
+  entity Usuario = {
+    grupos: Set<String>,   // grupos do Cognito do usuário
+    unidade: String,       // Unidade_Macro do usuário
+    setor?: String,        // Setor_Envolvido (somente para Setor_Atendente)
+  };
+
+  // Reserva (RESE) avaliada como recurso.
+  entity Reserva = {
+    dono: Usuario,         // Solicitante da Reserva
+    unidade: String,       // Unidade_Macro da Reserva
+    setores: Set<String>,  // Setor_Envolvido vinculados ao Ambiente e aos Recursos (EAMB/EREC)
+  };
+
+  // Qualquer cadastro (Ambiente, Recurso, Setor, Disposição, Grupo etc.).
+  entity Cadastro = {
+    unidade: String,       // Unidade_Macro dona do cadastro
+  };
+
+  // Configuração do sistema (antecedência, faixas horárias, endpoint SNP).
+  entity Configuracao;
+
+  action ConsultarReserva, CriarReserva, AlterarReserva, CancelarReserva, VerPainelAtendente
+    appliesTo {
+      principal: Usuario,
+      resource: Reserva,
+    };
+
+  action ManterCadastro
+    appliesTo {
+      principal: Usuario,
+      resource: Cadastro,
+    };
+
+  action ManterConfiguracao
+    appliesTo {
+      principal: Usuario,
+      resource: Configuracao,
+    };
+}

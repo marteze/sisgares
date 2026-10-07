@@ -1,0 +1,1524 @@
+{
+  "pbtResults": {},
+  "executionHistory": {
+    "1.1 Criar a estrutura de pastas e copiar os dados": [
+      {
+        "executionId": "3c13b6ee-9b05-4155-9393-85a4fcd48bf3",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383638264
+      },
+      {
+        "executionId": "3c13b6ee-9b05-4155-9393-85a4fcd48bf3",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383659775
+      },
+      {
+        "executionId": "3c13b6ee-9b05-4155-9393-85a4fcd48bf3",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383720202
+      }
+    ],
+    "1.2 Criar o pom pai multimódulo em `backend/`": [
+      {
+        "executionId": "3c13b6ee-9b05-4155-9393-85a4fcd48bf3",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383638317
+      },
+      {
+        "executionId": "3c13b6ee-9b05-4155-9393-85a4fcd48bf3",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383725164
+      },
+      {
+        "executionId": "92b99a1b-f908-4870-8914-8d175640638a",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383922921
+      }
+    ],
+    "1.3 Criar o projeto Angular em `frontend/`": [
+      {
+        "executionId": "3c13b6ee-9b05-4155-9393-85a4fcd48bf3",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383638349
+      },
+      {
+        "executionId": "3c13b6ee-9b05-4155-9393-85a4fcd48bf3",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383726180
+      },
+      {
+        "executionId": "92b99a1b-f908-4870-8914-8d175640638a",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383944844
+      },
+      {
+        "executionId": "92b99a1b-f908-4870-8914-8d175640638a",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383952827
+      },
+      {
+        "executionId": "68fd36b6-b8d7-4434-88fc-172ca120bd2b",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791384392712
+      }
+    ],
+    "1.4 Criar o projeto AWS CDK (Java) em `infra/`": [
+      {
+        "executionId": "3c13b6ee-9b05-4155-9393-85a4fcd48bf3",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383638374
+      },
+      {
+        "executionId": "3c13b6ee-9b05-4155-9393-85a4fcd48bf3",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383727529
+      },
+      {
+        "executionId": "92b99a1b-f908-4870-8914-8d175640638a",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383922987
+      }
+    ],
+    "2.1 Criar records de domínio e `Clock` injetável": [
+      {
+        "executionId": "3c13b6ee-9b05-4155-9393-85a4fcd48bf3",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383638400
+      },
+      {
+        "executionId": "92b99a1b-f908-4870-8914-8d175640638a",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383944874
+      },
+      {
+        "executionId": "68fd36b6-b8d7-4434-88fc-172ca120bd2b",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791384404608
+      },
+      {
+        "executionId": "c65ef2be-3e6c-42c4-92a2-36078628e986",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791384656410
+      },
+      {
+        "executionId": "690ccecb-92d2-42b5-be94-4584213604e9",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791384828512
+      },
+      {
+        "executionId": "690ccecb-92d2-42b5-be94-4584213604e9",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385031681
+      }
+    ],
+    "2.2 Implementar `ArvoreAmbientes`": [
+      {
+        "executionId": "3c13b6ee-9b05-4155-9393-85a4fcd48bf3",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383638436
+      },
+      {
+        "executionId": "92b99a1b-f908-4870-8914-8d175640638a",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383944927
+      },
+      {
+        "executionId": "690ccecb-92d2-42b5-be94-4584213604e9",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385038531
+      },
+      {
+        "executionId": "690ccecb-92d2-42b5-be94-4584213604e9",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385169758
+      }
+    ],
+    "2.4 Implementar `EscapadorHtml` (OWASP Encoder via abstração pura) e `MascaradorDados`": [
+      {
+        "executionId": "3c13b6ee-9b05-4155-9393-85a4fcd48bf3",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383638470
+      },
+      {
+        "executionId": "92b99a1b-f908-4870-8914-8d175640638a",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383944961
+      },
+      {
+        "executionId": "690ccecb-92d2-42b5-be94-4584213604e9",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385040633
+      },
+      {
+        "executionId": "690ccecb-92d2-42b5-be94-4584213604e9",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385170775
+      }
+    ],
+    "3.1 Implementar `conflita(a, b)` e `conflitos(r, ocupados, arv)`": [
+      {
+        "executionId": "3c13b6ee-9b05-4155-9393-85a4fcd48bf3",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383638492
+      },
+      {
+        "executionId": "92b99a1b-f908-4870-8914-8d175640638a",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383944987
+      },
+      {
+        "executionId": "690ccecb-92d2-42b5-be94-4584213604e9",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385568523
+      },
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385593206
+      },
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385807314
+      }
+    ],
+    "4.1 Implementar `CalculadoraDisponibilidade.disponivel`": [
+      {
+        "executionId": "3c13b6ee-9b05-4155-9393-85a4fcd48bf3",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383638514
+      },
+      {
+        "executionId": "92b99a1b-f908-4870-8914-8d175640638a",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383945016
+      },
+      {
+        "executionId": "690ccecb-92d2-42b5-be94-4584213604e9",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385042012
+      },
+      {
+        "executionId": "690ccecb-92d2-42b5-be94-4584213604e9",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385175473
+      }
+    ],
+    "4.2 Implementar `CalculadoraStatus.status` (cancelada > prevista > transcorrida > em andamento)": [
+      {
+        "executionId": "3c13b6ee-9b05-4155-9393-85a4fcd48bf3",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383638535
+      },
+      {
+        "executionId": "92b99a1b-f908-4870-8914-8d175640638a",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383945038
+      },
+      {
+        "executionId": "690ccecb-92d2-42b5-be94-4584213604e9",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385045275
+      },
+      {
+        "executionId": "690ccecb-92d2-42b5-be94-4584213604e9",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385173582
+      }
+    ],
+    "5.1 Implementar validações RN1–RN4 acumulando violações": [
+      {
+        "executionId": "3c13b6ee-9b05-4155-9393-85a4fcd48bf3",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383638557
+      },
+      {
+        "executionId": "92b99a1b-f908-4870-8914-8d175640638a",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383945059
+      },
+      {
+        "executionId": "690ccecb-92d2-42b5-be94-4584213604e9",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385568587
+      },
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385812455
+      },
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791386367546
+      }
+    ],
+    "5.2 Integrar RN5/RN6 (inclusive entre Períodos próprios), RN8, RN9 e RN12": [
+      {
+        "executionId": "3c13b6ee-9b05-4155-9393-85a4fcd48bf3",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383638584
+      },
+      {
+        "executionId": "92b99a1b-f908-4870-8914-8d175640638a",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383945081
+      },
+      {
+        "executionId": "690ccecb-92d2-42b5-be94-4584213604e9",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385568622
+      },
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791386368662
+      },
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791386666972
+      }
+    ],
+    "6.1 Implementar `CalculadoraGrade.calcular`": [
+      {
+        "executionId": "3c13b6ee-9b05-4155-9393-85a4fcd48bf3",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383638603
+      },
+      {
+        "executionId": "92b99a1b-f908-4870-8914-8d175640638a",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383945105
+      },
+      {
+        "executionId": "690ccecb-92d2-42b5-be94-4584213604e9",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385568655
+      },
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385813905
+      },
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791386367678
+      }
+    ],
+    "6.3 Implementar `ComparadorVersoes.comparar` (campo, valor antigo, valor novo)": [
+      {
+        "executionId": "3c13b6ee-9b05-4155-9393-85a4fcd48bf3",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383638630
+      },
+      {
+        "executionId": "92b99a1b-f908-4870-8914-8d175640638a",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383945134
+      },
+      {
+        "executionId": "690ccecb-92d2-42b5-be94-4584213604e9",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385190599
+      },
+      {
+        "executionId": "690ccecb-92d2-42b5-be94-4584213604e9",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385548789
+      }
+    ],
+    "7.1 Implementar `ResolvedorIcone.resolver`": [
+      {
+        "executionId": "3c13b6ee-9b05-4155-9393-85a4fcd48bf3",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383638652
+      },
+      {
+        "executionId": "92b99a1b-f908-4870-8914-8d175640638a",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383945157
+      },
+      {
+        "executionId": "690ccecb-92d2-42b5-be94-4584213604e9",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385045458
+      },
+      {
+        "executionId": "690ccecb-92d2-42b5-be94-4584213604e9",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385172876
+      }
+    ],
+    "7.4 Implementar `LeitorCsv.ler`/`formatar` e mapeadores das 10 entidades": [
+      {
+        "executionId": "3c13b6ee-9b05-4155-9393-85a4fcd48bf3",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383638683
+      },
+      {
+        "executionId": "92b99a1b-f908-4870-8914-8d175640638a",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383945190
+      },
+      {
+        "executionId": "690ccecb-92d2-42b5-be94-4584213604e9",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385192690
+      },
+      {
+        "executionId": "690ccecb-92d2-42b5-be94-4584213604e9",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385549994
+      }
+    ],
+    "8. Checkpoint - Núcleo_Domínio": [
+      {
+        "executionId": "3c13b6ee-9b05-4155-9393-85a4fcd48bf3",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383638706
+      },
+      {
+        "executionId": "92b99a1b-f908-4870-8914-8d175640638a",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383945223
+      },
+      {
+        "executionId": "690ccecb-92d2-42b5-be94-4584213604e9",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385568688
+      }
+    ],
+    "9.1 Configurar cliente DynamoDB (SDK v2 enhanced) e convenções de chaves": [
+      {
+        "executionId": "3c13b6ee-9b05-4155-9393-85a4fcd48bf3",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383638732
+      },
+      {
+        "executionId": "92b99a1b-f908-4870-8914-8d175640638a",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383945262
+      },
+      {
+        "executionId": "690ccecb-92d2-42b5-be94-4584213604e9",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385568722
+      },
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385593874
+      },
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385807355
+      }
+    ],
+    "9.2 Implementar repositórios de catálogo, configuração e usuário": [
+      {
+        "executionId": "3c13b6ee-9b05-4155-9393-85a4fcd48bf3",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383638755
+      },
+      {
+        "executionId": "92b99a1b-f908-4870-8914-8d175640638a",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383945300
+      },
+      {
+        "executionId": "690ccecb-92d2-42b5-be94-4584213604e9",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385568753
+      },
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385815227
+      },
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791386367904
+      }
+    ],
+    "9.3 Implementar repositório de reservas somente com Query": [
+      {
+        "executionId": "3c13b6ee-9b05-4155-9393-85a4fcd48bf3",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383638790
+      },
+      {
+        "executionId": "92b99a1b-f908-4870-8914-8d175640638a",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383945323
+      },
+      {
+        "executionId": "690ccecb-92d2-42b5-be94-4584213604e9",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385568785
+      },
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791386370050
+      },
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791386667259
+      }
+    ],
+    "9.4 Implementar gravação atômica com TransactWriteItems e outbox": [
+      {
+        "executionId": "3c13b6ee-9b05-4155-9393-85a4fcd48bf3",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383638818
+      },
+      {
+        "executionId": "92b99a1b-f908-4870-8914-8d175640638a",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383945346
+      },
+      {
+        "executionId": "690ccecb-92d2-42b5-be94-4584213604e9",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385568813
+      },
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791386672922
+      },
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791387318353
+      }
+    ],
+    "9.5 Implementar logs JSON (Powertools) com mascaramento, `correlationId` e mapeamento de erros HTTP": [
+      {
+        "executionId": "3c13b6ee-9b05-4155-9393-85a4fcd48bf3",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383638840
+      },
+      {
+        "executionId": "92b99a1b-f908-4870-8914-8d175640638a",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383945368
+      },
+      {
+        "executionId": "690ccecb-92d2-42b5-be94-4584213604e9",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385568844
+      },
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385816753
+      },
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791386368074
+      }
+    ],
+    "10.1 Criar DTOs com Bean Validation e whitelist": [
+      {
+        "executionId": "3c13b6ee-9b05-4155-9393-85a4fcd48bf3",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383638869
+      },
+      {
+        "executionId": "92b99a1b-f908-4870-8914-8d175640638a",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383945391
+      },
+      {
+        "executionId": "690ccecb-92d2-42b5-be94-4584213604e9",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385568892
+      },
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791386674989
+      },
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791387318309
+      }
+    ],
+    "10.2 Implementar handler das rotas de `/api/reservas`": [
+      {
+        "executionId": "3c13b6ee-9b05-4155-9393-85a4fcd48bf3",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383638890
+      },
+      {
+        "executionId": "92b99a1b-f908-4870-8914-8d175640638a",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383945413
+      },
+      {
+        "executionId": "690ccecb-92d2-42b5-be94-4584213604e9",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385568920
+      },
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791387326618
+      },
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791388283182
+      }
+    ],
+    "10.3 Implementar publicação de Evento_Reserva e republicador de outbox": [
+      {
+        "executionId": "3c13b6ee-9b05-4155-9393-85a4fcd48bf3",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383638917
+      },
+      {
+        "executionId": "92b99a1b-f908-4870-8914-8d175640638a",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383945435
+      },
+      {
+        "executionId": "690ccecb-92d2-42b5-be94-4584213604e9",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385568951
+      },
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791388287429
+      },
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791388749662
+      }
+    ],
+    "11.1 Implementar `GET /paineis/solicitante` usando CalculadoraGrade": [
+      {
+        "executionId": "3c13b6ee-9b05-4155-9393-85a4fcd48bf3",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383638941
+      },
+      {
+        "executionId": "92b99a1b-f908-4870-8914-8d175640638a",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383945456
+      },
+      {
+        "executionId": "690ccecb-92d2-42b5-be94-4584213604e9",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385568977
+      },
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791387327220
+      },
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791388283717
+      }
+    ],
+    "11.2 Implementar `GET /paineis/atendente` (GSI2 para Atendente, GSI3 para Admin)": [
+      {
+        "executionId": "3c13b6ee-9b05-4155-9393-85a4fcd48bf3",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383638973
+      },
+      {
+        "executionId": "92b99a1b-f908-4870-8914-8d175640638a",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383945478
+      },
+      {
+        "executionId": "690ccecb-92d2-42b5-be94-4584213604e9",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385569010
+      },
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791388288571
+      },
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791388751061
+      }
+    ],
+    "12.1 Implementar a Lambda de seed": [
+      {
+        "executionId": "3c13b6ee-9b05-4155-9393-85a4fcd48bf3",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383639022
+      },
+      {
+        "executionId": "92b99a1b-f908-4870-8914-8d175640638a",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383945501
+      },
+      {
+        "executionId": "690ccecb-92d2-42b5-be94-4584213604e9",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385569043
+      },
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791386676318
+      },
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791387318983
+      }
+    ],
+    "13. Checkpoint - Backend de reservas, painéis e seed": [
+      {
+        "executionId": "3c13b6ee-9b05-4155-9393-85a4fcd48bf3",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383639045
+      },
+      {
+        "executionId": "92b99a1b-f908-4870-8914-8d175640638a",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383945524
+      },
+      {
+        "executionId": "690ccecb-92d2-42b5-be94-4584213604e9",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385569076
+      }
+    ],
+    "14.1 Implementar o Notificador": [
+      {
+        "executionId": "3c13b6ee-9b05-4155-9393-85a4fcd48bf3",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383639075
+      },
+      {
+        "executionId": "92b99a1b-f908-4870-8914-8d175640638a",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383945549
+      },
+      {
+        "executionId": "690ccecb-92d2-42b5-be94-4584213604e9",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385569114
+      },
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791386677773
+      },
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791387324543
+      }
+    ],
+    "14.2 Implementar o Cliente_SNP e a Lambda mock do SNP": [
+      {
+        "executionId": "3c13b6ee-9b05-4155-9393-85a4fcd48bf3",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383639105
+      },
+      {
+        "executionId": "92b99a1b-f908-4870-8914-8d175640638a",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383945572
+      },
+      {
+        "executionId": "690ccecb-92d2-42b5-be94-4584213604e9",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385569145
+      },
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791387327617
+      },
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791388284264
+      }
+    ],
+    "14.6 Definir no CDK `EventosStack`": [
+      {
+        "executionId": "3c13b6ee-9b05-4155-9393-85a4fcd48bf3",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383639130
+      },
+      {
+        "executionId": "92b99a1b-f908-4870-8914-8d175640638a",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383945596
+      },
+      {
+        "executionId": "690ccecb-92d2-42b5-be94-4584213604e9",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385569177
+      },
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791387328620
+      },
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791388285004
+      }
+    ],
+    "15.1 Escrever as políticas Cedar em `infra/cedar/` e o schema": [
+      {
+        "executionId": "3c13b6ee-9b05-4155-9393-85a4fcd48bf3",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383639151
+      },
+      {
+        "executionId": "92b99a1b-f908-4870-8914-8d175640638a",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383945620
+      },
+      {
+        "executionId": "690ccecb-92d2-42b5-be94-4584213604e9",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385569211
+      },
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385598858
+      },
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385808458
+      }
+    ],
+    "15.2 Implementar o Autorizador em `comum-aws` e aplicá-lo nos handlers de reservas e painéis": [
+      {
+        "executionId": "3c13b6ee-9b05-4155-9393-85a4fcd48bf3",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383639173
+      },
+      {
+        "executionId": "92b99a1b-f908-4870-8914-8d175640638a",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383945646
+      },
+      {
+        "executionId": "690ccecb-92d2-42b5-be94-4584213604e9",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385569243
+      }
+    ],
+    "15.3 Definir Cognito no CDK e mock local de JWT": [
+      {
+        "executionId": "3c13b6ee-9b05-4155-9393-85a4fcd48bf3",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383639197
+      },
+      {
+        "executionId": "92b99a1b-f908-4870-8914-8d175640638a",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383945668
+      },
+      {
+        "executionId": "690ccecb-92d2-42b5-be94-4584213604e9",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385569275
+      },
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791386372822
+      },
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791386668699
+      }
+    ],
+    "16. Checkpoint - Eventos e autorização": [
+      {
+        "executionId": "3c13b6ee-9b05-4155-9393-85a4fcd48bf3",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383639218
+      },
+      {
+        "executionId": "92b99a1b-f908-4870-8914-8d175640638a",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383945701
+      },
+      {
+        "executionId": "690ccecb-92d2-42b5-be94-4584213604e9",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385569303
+      }
+    ],
+    "17.1 Implementar login, serviço de autenticação, interceptor JWT, guards por grupo e menu por perfil": [
+      {
+        "executionId": "3c13b6ee-9b05-4155-9393-85a4fcd48bf3",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383639239
+      },
+      {
+        "executionId": "92b99a1b-f908-4870-8914-8d175640638a",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383945726
+      },
+      {
+        "executionId": "68fd36b6-b8d7-4434-88fc-172ca120bd2b",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791384406916
+      },
+      {
+        "executionId": "c65ef2be-3e6c-42c4-92a2-36078628e986",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791384657595
+      },
+      {
+        "executionId": "690ccecb-92d2-42b5-be94-4584213604e9",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791384830491
+      },
+      {
+        "executionId": "690ccecb-92d2-42b5-be94-4584213604e9",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385032498
+      }
+    ],
+    "18.1 Criar `/painel/solicitante`": [
+      {
+        "executionId": "3c13b6ee-9b05-4155-9393-85a4fcd48bf3",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383639262
+      },
+      {
+        "executionId": "92b99a1b-f908-4870-8914-8d175640638a",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383945756
+      },
+      {
+        "executionId": "690ccecb-92d2-42b5-be94-4584213604e9",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385569336
+      },
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385600061
+      },
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385809711
+      }
+    ],
+    "19.1 Criar `/reservas`, `/reservas/nova` e `/reservas/:id`": [
+      {
+        "executionId": "3c13b6ee-9b05-4155-9393-85a4fcd48bf3",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383639286
+      },
+      {
+        "executionId": "92b99a1b-f908-4870-8914-8d175640638a",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383945789
+      },
+      {
+        "executionId": "690ccecb-92d2-42b5-be94-4584213604e9",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385569361
+      },
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385818410
+      },
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791386368117
+      }
+    ],
+    "19.2 Implementar cancelamento com diálogo de confirmação acessível": [
+      {
+        "executionId": "3c13b6ee-9b05-4155-9393-85a4fcd48bf3",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383639307
+      },
+      {
+        "executionId": "92b99a1b-f908-4870-8914-8d175640638a",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383945817
+      },
+      {
+        "executionId": "690ccecb-92d2-42b5-be94-4584213604e9",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385569393
+      },
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791387329999
+      },
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791388286098
+      }
+    ],
+    "20.1 Criar `/painel/atendente` com cards por data": [
+      {
+        "executionId": "3c13b6ee-9b05-4155-9393-85a4fcd48bf3",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383639327
+      },
+      {
+        "executionId": "92b99a1b-f908-4870-8914-8d175640638a",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383945840
+      },
+      {
+        "executionId": "690ccecb-92d2-42b5-be94-4584213604e9",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385569424
+      },
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791386374217
+      },
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791386670069
+      }
+    ],
+    "20.2 Aplicar responsividade (360–1920 px) e WCAG 2.1 AA/eMAG": [
+      {
+        "executionId": "3c13b6ee-9b05-4155-9393-85a4fcd48bf3",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383639350
+      },
+      {
+        "executionId": "92b99a1b-f908-4870-8914-8d175640638a",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383945872
+      },
+      {
+        "executionId": "690ccecb-92d2-42b5-be94-4584213604e9",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385569454
+      },
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791388294073
+      },
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791388756780
+      }
+    ],
+    "21.1 Implementar `SegurancaStack` e `DadosStack`": [
+      {
+        "executionId": "3c13b6ee-9b05-4155-9393-85a4fcd48bf3",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383639372
+      },
+      {
+        "executionId": "92b99a1b-f908-4870-8914-8d175640638a",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383945900
+      },
+      {
+        "executionId": "690ccecb-92d2-42b5-be94-4584213604e9",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385569488
+      },
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385601255
+      },
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385811086
+      }
+    ],
+    "21.2 Implementar `ApiStack`": [
+      {
+        "executionId": "3c13b6ee-9b05-4155-9393-85a4fcd48bf3",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383639395
+      },
+      {
+        "executionId": "92b99a1b-f908-4870-8914-8d175640638a",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383945925
+      },
+      {
+        "executionId": "690ccecb-92d2-42b5-be94-4584213604e9",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385569521
+      },
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791386679471
+      },
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791387325788
+      }
+    ],
+    "21.3 Implementar `FrontStack` e envio de seed": [
+      {
+        "executionId": "3c13b6ee-9b05-4155-9393-85a4fcd48bf3",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383639423
+      },
+      {
+        "executionId": "92b99a1b-f908-4870-8914-8d175640638a",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383945956
+      },
+      {
+        "executionId": "690ccecb-92d2-42b5-be94-4584213604e9",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385569562
+      },
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791388290481
+      },
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791388753061
+      }
+    ],
+    "21.5 Criar template SAM local e `docker-compose` com DynamoDB Local": [
+      {
+        "executionId": "3c13b6ee-9b05-4155-9393-85a4fcd48bf3",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383639451
+      },
+      {
+        "executionId": "92b99a1b-f908-4870-8914-8d175640638a",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383945983
+      },
+      {
+        "executionId": "690ccecb-92d2-42b5-be94-4584213604e9",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385569602
+      }
+    ],
+    "22. Checkpoint - Frontend e infraestrutura": [
+      {
+        "executionId": "3c13b6ee-9b05-4155-9393-85a4fcd48bf3",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383639473
+      },
+      {
+        "executionId": "92b99a1b-f908-4870-8914-8d175640638a",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383946008
+      },
+      {
+        "executionId": "690ccecb-92d2-42b5-be94-4584213604e9",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385569629
+      }
+    ],
+    "23.1 Implementar a Lambda de catálogo": [
+      {
+        "executionId": "3c13b6ee-9b05-4155-9393-85a4fcd48bf3",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383639501
+      },
+      {
+        "executionId": "92b99a1b-f908-4870-8914-8d175640638a",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383946042
+      },
+      {
+        "executionId": "690ccecb-92d2-42b5-be94-4584213604e9",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385569661
+      }
+    ],
+    "23.2 Implementar a Lambda de configuração": [
+      {
+        "executionId": "3c13b6ee-9b05-4155-9393-85a4fcd48bf3",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383639534
+      },
+      {
+        "executionId": "92b99a1b-f908-4870-8914-8d175640638a",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383946091
+      },
+      {
+        "executionId": "690ccecb-92d2-42b5-be94-4584213604e9",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385569693
+      }
+    ],
+    "23.4 Criar telas `/cadastros/*` e `/configuracao` no frontend": [
+      {
+        "executionId": "3c13b6ee-9b05-4155-9393-85a4fcd48bf3",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383639559
+      },
+      {
+        "executionId": "92b99a1b-f908-4870-8914-8d175640638a",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383946116
+      },
+      {
+        "executionId": "690ccecb-92d2-42b5-be94-4584213604e9",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385569720
+      }
+    ],
+    "24.1 Implementar a Lambda do Assistente_Reserva": [
+      {
+        "executionId": "3c13b6ee-9b05-4155-9393-85a4fcd48bf3",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383639584
+      },
+      {
+        "executionId": "92b99a1b-f908-4870-8914-8d175640638a",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383946139
+      },
+      {
+        "executionId": "690ccecb-92d2-42b5-be94-4584213604e9",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385569745
+      }
+    ],
+    "24.3 Implementar a Lambda de exportação": [
+      {
+        "executionId": "3c13b6ee-9b05-4155-9393-85a4fcd48bf3",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383639608
+      },
+      {
+        "executionId": "92b99a1b-f908-4870-8914-8d175640638a",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383946167
+      },
+      {
+        "executionId": "690ccecb-92d2-42b5-be94-4584213604e9",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385569777
+      }
+    ],
+    "24.5 Implementar métricas e alarmes": [
+      {
+        "executionId": "3c13b6ee-9b05-4155-9393-85a4fcd48bf3",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383639635
+      },
+      {
+        "executionId": "92b99a1b-f908-4870-8914-8d175640638a",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383946194
+      },
+      {
+        "executionId": "690ccecb-92d2-42b5-be94-4584213604e9",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385569811
+      }
+    ],
+    "24.6 Integrar no frontend o assistente, a exportação e a `/caixa-simulada`": [
+      {
+        "executionId": "3c13b6ee-9b05-4155-9393-85a4fcd48bf3",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383639668
+      },
+      {
+        "executionId": "92b99a1b-f908-4870-8914-8d175640638a",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383946221
+      },
+      {
+        "executionId": "690ccecb-92d2-42b5-be94-4584213604e9",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385569843
+      }
+    ],
+    "25.1 Criar `.kiro/steering/` com `idioma.md`, `java.md`, `angular.md`, `seguranca-lgpd.md` e `arquitetura.md`": [
+      {
+        "executionId": "3c13b6ee-9b05-4155-9393-85a4fcd48bf3",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383639691
+      },
+      {
+        "executionId": "92b99a1b-f908-4870-8914-8d175640638a",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383946244
+      },
+      {
+        "executionId": "68fd36b6-b8d7-4434-88fc-172ca120bd2b",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791384408907
+      },
+      {
+        "executionId": "c65ef2be-3e6c-42c4-92a2-36078628e986",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791384659293
+      },
+      {
+        "executionId": "690ccecb-92d2-42b5-be94-4584213604e9",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791384828565
+      }
+    ],
+    "25.2 Criar `.kiro/hooks/` com `testes-dominio`, `verifica-segredos-pii` e `atualiza-openapi-docs`": [
+      {
+        "executionId": "3c13b6ee-9b05-4155-9393-85a4fcd48bf3",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383639724
+      },
+      {
+        "executionId": "92b99a1b-f908-4870-8914-8d175640638a",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383946275
+      },
+      {
+        "executionId": "690ccecb-92d2-42b5-be94-4584213604e9",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385193642
+      },
+      {
+        "executionId": "690ccecb-92d2-42b5-be94-4584213604e9",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385552155
+      }
+    ],
+    "26.1 Escrever o `README.md` da raiz e o `infra/README.md`": [
+      {
+        "executionId": "3c13b6ee-9b05-4155-9393-85a4fcd48bf3",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383639771
+      },
+      {
+        "executionId": "92b99a1b-f908-4870-8914-8d175640638a",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383946306
+      },
+      {
+        "executionId": "690ccecb-92d2-42b5-be94-4584213604e9",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385569870
+      },
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791386376336
+      },
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791386671584
+      }
+    ],
+    "26.2 Escrever `docs/`": [
+      {
+        "executionId": "3c13b6ee-9b05-4155-9393-85a4fcd48bf3",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383639801
+      },
+      {
+        "executionId": "92b99a1b-f908-4870-8914-8d175640638a",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383946339
+      },
+      {
+        "executionId": "690ccecb-92d2-42b5-be94-4584213604e9",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385569903
+      },
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791388291716
+      },
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791388753730
+      }
+    ],
+    "27. Checkpoint final": [
+      {
+        "executionId": "3c13b6ee-9b05-4155-9393-85a4fcd48bf3",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383639825
+      },
+      {
+        "executionId": "92b99a1b-f908-4870-8914-8d175640638a",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791383946367
+      },
+      {
+        "executionId": "690ccecb-92d2-42b5-be94-4584213604e9",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385569934
+      }
+    ],
+    "1. Criar o esqueleto do monorepo": [
+      {
+        "executionId": "68fd36b6-b8d7-4434-88fc-172ca120bd2b",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791384392807
+      }
+    ],
+    "17. Implementar a base do frontend e o login": [
+      {
+        "executionId": "690ccecb-92d2-42b5-be94-4584213604e9",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385032576
+      }
+    ],
+    "2. Implementar modelos do Núcleo_Domínio e utilitários": [
+      {
+        "executionId": "690ccecb-92d2-42b5-be94-4584213604e9",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385170840
+      }
+    ],
+    "4. Implementar CalculadoraDisponibilidade e CalculadoraStatus": [
+      {
+        "executionId": "690ccecb-92d2-42b5-be94-4584213604e9",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385175531
+      }
+    ],
+    "7. Implementar ResolvedorIcone e LeitorCsv": [
+      {
+        "executionId": "690ccecb-92d2-42b5-be94-4584213604e9",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385550059
+      }
+    ],
+    "25. Configurar steering e hooks do Kiro": [
+      {
+        "executionId": "690ccecb-92d2-42b5-be94-4584213604e9",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385552190
+      }
+    ],
+    "3. Implementar o DetectorConflito": [
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385807392
+      }
+    ],
+    "18. Implementar o painel do Solicitante em grade": [
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791385809756
+      }
+    ],
+    "6. Implementar CalculadoraGrade e ComparadorVersoes": [
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791386367718
+      }
+    ],
+    "5. Implementar o Validador_Reserva": [
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791386667022
+      }
+    ],
+    "9. Implementar repositórios DynamoDB em `comum-aws`": [
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791387318404
+      }
+    ],
+    "12. Implementar o Importador_Seed": [
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791387319023
+      }
+    ],
+    "14. Implementar o fluxo de eventos": [
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791388285046
+      }
+    ],
+    "19. Implementar o formulário de reserva": [
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791388286132
+      }
+    ],
+    "10. Implementar a Lambda de reservas": [
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791388749713
+      }
+    ],
+    "11. Implementar a Lambda de painéis": [
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791388751099
+      }
+    ],
+    "26. Escrever a documentação": [
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791388753790
+      }
+    ],
+    "20. Implementar o painel do Atendente e a acessibilidade": [
+      {
+        "executionId": "049b79e1-6b85-4e29-b4e8-85d56bd2b090",
+        "chatSessionId": "sess_915c1ce8-3b2e-4459-8fbf-e226da3c7a44",
+        "timestamp": 1791388756828
+      }
+    ]
+  }
+}

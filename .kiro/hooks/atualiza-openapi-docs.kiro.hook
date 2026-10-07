@@ -1,0 +1,21 @@
+{
+  "enabled": true,
+  "name": "Atualiza OpenAPI e docs",
+  "description": "Quando handlers Lambda dos contextos da API forem alterados, o agente atualiza docs/openapi.yaml e os documentos de docs/ (Requisito 19.5).",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "backend/reservas/**/*.java",
+      "backend/paineis/**/*.java",
+      "backend/catalogo/**/*.java",
+      "backend/configuracao/**/*.java",
+      "backend/assistente/**/*.java",
+      "backend/exportacao/**/*.java"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Um arquivo Java de um contexto da API foi alterado. Verifique se a mudança afeta o contrato REST (rotas sob /api, métodos HTTP, parâmetros, corpos de requisição e resposta em JSON, datas ISO-8601, códigos de status e mensagens de erro com código de regra RNx).\n\nSe afetar:\n1. Atualize docs/openapi.yaml para refletir exatamente o comportamento do handler (paths, schemas, exemplos com dados fictícios, como e-mails em exemplo.gov.br, e respostas de erro).\n2. Atualize os documentos relacionados em docs/ (por exemplo, o modelo DynamoDB com PK/SK/GSIs, se surgir novo padrão de acesso, e a arquitetura/eventos, se houver novo evento de outbox).\n3. Escreva tudo em português do Brasil, mantendo em inglês apenas termos técnicos consagrados e identificadores.\n\nSe a mudança não afetar o contrato nem a documentação, não altere nada e informe isso brevemente."
+  }
+}

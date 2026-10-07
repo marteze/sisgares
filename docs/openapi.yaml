@@ -1,0 +1,553 @@
+openapi: 3.0.3
+info:
+  title: SISGARES API
+  version: 1.0.0
+  description: |
+    API REST do SISGARES (reservas de ambientes e recursos do MPF). Todas as rotas ficam sob `/api`,
+    trafegam JSON e usam datas ISO-8601 (`yyyy-MM-ddTHH:mm:ss`, horário local da unidade).
+    A autenticação é feita por JWT do Cognito (authorizer do API Gateway) e a autorização é verificada
+    no backend pelo Amazon Verified Permissions (políticas Cedar em `infra/cedar/`).
+    Os exemplos usam somente dados fictícios.
+servers:
+  - url: https://api.exemplo.gov.br
+    description: Ambiente de exemplo (substituir pela URL emitida pela ApiStack)
+security:
+  - bearerJwt: []
+tags:
+  - name: reservas
+  - name: paineis
+  - name: catalogo
+  - name: configuracao
+
+paths:
+  /api/reservas:
+    get:
+      tags: [reservas]
+      summary: Lista reservas visíveis ao usuário
+      operationId: listarReservas
+      parameters:
+        - name: minhas
+          in: query
+          description: Quando `true`, somente as reservas do próprio Solicitante (GSI4).
+          schema: { type: boolean, default: false }
+        - name: de
+          in: query
+          schema: { type: string, format: date-time }
+          example: "2025-06-02T00:00:00"
+        - name: ate
+          in: query
+          schema: { type: string, format: date-time }
+          example: "2025-06-06T23:59:59"
+      responses:
+        '200':
+          description: Reservas encontradas
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Reserva' }
+        '400': { $ref: '#/components/responses/Erro400' }
+        '401': { $ref: '#/components/responses/Erro401' }
+        '403': { $ref: '#/components/responses/Erro403' }
+    post:
+      tags: [reservas]
+      summary: Cria uma reserva
+      description: Valida RN1 a RN11, grava de forma atômica e publica o evento ReservaCriada.
+      operationId: criarReserva
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ReservaRequisicao' }
+            example:
+              ambienteId: "12"
+              complemento: "Sala ao lado da recepção"
+              disposicaoId: "3"
+              finalidade: "Reunião de planejamento trimestral"
+              participantes: 15
+              periodos:
+                - inicio: "2025-06-03T09:00:00"
+                  termino: "2025-06-03T11:00:00"
+              recursos:
+                - recursoId: "7"
+                  quantidade: 1
+      responses:
+        '201':
+          description: Reserva criada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Reserva' }
+        '400': { $ref: '#/components/responses/Erro400' }
+        '401': { $ref: '#/components/responses/Erro401' }
+        '403': { $ref: '#/components/responses/Erro403' }
+        '409': { $ref: '#/components/responses/Erro409' }
+        '422': { $ref: '#/components/responses/Erro422' }
+
+  /api/reservas/{id}:
+    parameters:
+      - $ref: '#/components/parameters/IdReserva'
+    get:
+      tags: [reservas]
+      summary: Obtém uma reserva
+      description: O nome do Solicitante só é retornado ao próprio Solicitante, ao Administrador e ao Setor_Atendente envolvido.
+      operationId: obterReserva
+      responses:
+        '200':
+          description: Reserva
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Reserva' }
+        '401': { $ref: '#/components/responses/Erro401' }
+        '403': { $ref: '#/components/responses/Erro403' }
+        '404': { $ref: '#/components/responses/Erro404' }
+    put:
+      tags: [reservas]
+      summary: Altera uma reserva
+      description: Campos somente leitura (`id`, `status`, `solicitanteNome`, `ultimaAlteracao`, `pedidosSnp`) são ignorados. Concorrência otimista por versão.
+      operationId: alterarReserva
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ReservaRequisicao' }
+      responses:
+        '200':
+          description: Reserva alterada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Reserva' }
+        '400': { $ref: '#/components/responses/Erro400' }
+        '401': { $ref: '#/components/responses/Erro401' }
+        '403': { $ref: '#/components/responses/Erro403' }
+        '404': { $ref: '#/components/responses/Erro404' }
+        '409': { $ref: '#/components/responses/Erro409' }
+        '422': { $ref: '#/components/responses/Erro422' }
+
+  /api/reservas/{id}/cancelamento:
+    parameters:
+      - $ref: '#/components/parameters/IdReserva'
+    post:
+      tags: [reservas]
+      summary: Cancela uma reserva
+      operationId: cancelarReserva
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [confirmado]
+              properties:
+                confirmado: { type: boolean, description: Deve ser `true` para confirmar. }
+            example: { confirmado: true }
+      responses:
+        '200':
+          description: Reserva cancelada (status CANCELADA)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Reserva' }
+        '400': { $ref: '#/components/responses/Erro400' }
+        '401': { $ref: '#/components/responses/Erro401' }
+        '403': { $ref: '#/components/responses/Erro403' }
+        '404': { $ref: '#/components/responses/Erro404' }
+        '409': { $ref: '#/components/responses/Erro409' }
+
+  /api/reservas/verificar-periodo:
+    post:
+      tags: [reservas]
+      summary: Verifica conflitos de um período antes de salvar
+      operationId: verificarPeriodo
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [ambienteId, periodo]
+              properties:
+                ambienteId: { $ref: '#/components/schemas/Id' }
+                periodo: { $ref: '#/components/schemas/Periodo' }
+                reservaId:
+                  allOf: [ { $ref: '#/components/schemas/Id' } ]
+                  description: Reserva em edição, desconsiderada na verificação.
+            example:
+              ambienteId: "12"
+              periodo: { inicio: "2025-06-03T09:00:00", termino: "2025-06-03T11:00:00" }
+      responses:
+        '200':
+          description: Lista de conflitos (vazia quando livre)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  conflitos:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        codigo: { type: string, example: RN5 }
+                        mensagem: { type: string, example: "RN5: o ambiente já está reservado neste período." }
+                        reservaId: { type: string, example: "1042" }
+        '400': { $ref: '#/components/responses/Erro400' }
+        '401': { $ref: '#/components/responses/Erro401' }
+
+  /api/reservas/{id}/versoes:
+    parameters:
+      - $ref: '#/components/parameters/IdReserva'
+    get:
+      tags: [reservas]
+      summary: Histórico de versões da reserva com diferenças
+      operationId: listarVersoes
+      responses:
+        '200':
+          description: Versões em ordem crescente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    numero: { type: integer, format: int64, example: 2 }
+                    alteradaEm: { type: string, format: date-time }
+                    reserva: { $ref: '#/components/schemas/Reserva' }
+                    diferencas:
+                      type: array
+                      items:
+                        type: object
+                        additionalProperties: true
+        '401': { $ref: '#/components/responses/Erro401' }
+        '403': { $ref: '#/components/responses/Erro403' }
+        '404': { $ref: '#/components/responses/Erro404' }
+
+  /api/paineis/solicitante:
+    get:
+      tags: [paineis]
+      summary: Grade do Painel do Solicitante (períodos ocupados por ambiente)
+      description: Para reservas de terceiros retorna apenas o período ocupado, sem dados pessoais.
+      operationId: painelSolicitante
+      parameters:
+        - name: ambiente
+          in: query
+          required: true
+          schema: { $ref: '#/components/schemas/Id' }
+        - $ref: '#/components/parameters/DataReferencia'
+        - $ref: '#/components/parameters/Colunas'
+        - $ref: '#/components/parameters/Fds'
+      responses:
+        '200':
+          description: Grade do painel
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Painel' }
+        '400': { $ref: '#/components/responses/Erro400' }
+        '401': { $ref: '#/components/responses/Erro401' }
+        '405': { $ref: '#/components/responses/Erro405' }
+
+  /api/paineis/atendente:
+    get:
+      tags: [paineis]
+      summary: Painel do Atendente / Administrador
+      description: Setor_Atendente vê as reservas que envolvem o seu setor; Administrador vê todas da sua Unidade_Macro.
+      operationId: painelAtendente
+      parameters:
+        - $ref: '#/components/parameters/DataReferencia'
+        - $ref: '#/components/parameters/Colunas'
+        - $ref: '#/components/parameters/Fds'
+      responses:
+        '200':
+          description: Painel
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Painel' }
+        '400': { $ref: '#/components/responses/Erro400' }
+        '401': { $ref: '#/components/responses/Erro401' }
+        '403': { $ref: '#/components/responses/Erro403' }
+        '405': { $ref: '#/components/responses/Erro405' }
+
+  /api/catalogo/ambientes:
+    get:
+      tags: [catalogo]
+      summary: Lista ambientes da unidade
+      operationId: listarAmbientes
+      responses:
+        '200':
+          description: Ambientes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  required: [id, nome]
+                  properties:
+                    id: { $ref: '#/components/schemas/Id' }
+                    nome: { type: string, example: "Auditório Principal" }
+                    ativo: { type: boolean }
+        '401': { $ref: '#/components/responses/Erro401' }
+
+  /api/catalogo/recursos:
+    get:
+      tags: [catalogo]
+      summary: Lista recursos
+      operationId: listarRecursos
+      responses:
+        '200':
+          description: Recursos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  required: [id, descricao, limitado]
+                  properties:
+                    id: { $ref: '#/components/schemas/Id' }
+                    descricao: { type: string, example: "Projetor multimídia" }
+                    limitado: { type: boolean }
+                    disponibilidade: { type: integer, example: 3 }
+                    grupoId: { type: string, example: "2" }
+                    grupoNome: { type: string, example: "Equipamentos" }
+                    grupoOrdem: { type: integer, example: 1 }
+        '401': { $ref: '#/components/responses/Erro401' }
+
+  /api/catalogo/disposicoes:
+    get:
+      tags: [catalogo]
+      summary: Lista disposições de sala
+      operationId: listarDisposicoes
+      responses:
+        '200':
+          description: Disposições
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  required: [id, descricao]
+                  properties:
+                    id: { $ref: '#/components/schemas/Id' }
+                    descricao: { type: string, example: "Formato U" }
+                    imagem: { type: string, example: "formato-u.png" }
+                    alt: { type: string, example: "Mesas dispostas em formato de U" }
+        '401': { $ref: '#/components/responses/Erro401' }
+
+  /api/configuracao:
+    get:
+      tags: [configuracao]
+      summary: Obtém a configuração global e as faixas por unidade
+      operationId: obterConfiguracao
+      responses:
+        '200':
+          description: Configuração
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Configuracao' }
+        '401': { $ref: '#/components/responses/Erro401' }
+    put:
+      tags: [configuracao]
+      summary: Atualiza a configuração (somente Administrador)
+      operationId: atualizarConfiguracao
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Configuracao' }
+      responses:
+        '200':
+          description: Configuração atualizada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Configuracao' }
+        '400': { $ref: '#/components/responses/Erro400' }
+        '401': { $ref: '#/components/responses/Erro401' }
+        '403': { $ref: '#/components/responses/Erro403' }
+
+components:
+  securitySchemes:
+    bearerJwt:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Token emitido pelo Cognito (Hosted UI, fluxo authorization code + PKCE).
+
+  parameters:
+    IdReserva:
+      name: id
+      in: path
+      required: true
+      schema: { $ref: '#/components/schemas/Id' }
+    DataReferencia:
+      name: data
+      in: query
+      description: Data de referência (ISO-8601).
+      schema: { type: string, format: date }
+      example: "2025-06-02"
+    Colunas:
+      name: colunas
+      in: query
+      description: Número de dias exibidos (1 a 14).
+      schema: { type: integer, minimum: 1, maximum: 14 }
+    Fds:
+      name: fds
+      in: query
+      description: Inclui sábados e domingos.
+      schema: { type: boolean }
+
+  schemas:
+    Id:
+      type: string
+      pattern: '^\d{1,18}$'
+      example: "12"
+    Status:
+      type: string
+      enum: [PREVISTA, EM_ANDAMENTO, TRANSCORRIDA, CANCELADA]
+    Periodo:
+      type: object
+      required: [inicio, termino]
+      properties:
+        id: { $ref: '#/components/schemas/Id' }
+        inicio: { type: string, format: date-time, example: "2025-06-03T09:00:00" }
+        termino: { type: string, format: date-time, example: "2025-06-03T11:00:00" }
+    Solicitacao:
+      type: object
+      required: [recursoId]
+      properties:
+        recursoId: { $ref: '#/components/schemas/Id' }
+        quantidade: { type: integer, minimum: 1, default: 1 }
+    ReservaRequisicao:
+      type: object
+      properties:
+        ambienteId:
+          allOf: [ { $ref: '#/components/schemas/Id' } ]
+          description: Ausente para Local_Proprio.
+        complemento: { type: string, maxLength: 200 }
+        disposicaoId: { $ref: '#/components/schemas/Id' }
+        finalidade: { type: string, maxLength: 2000 }
+        participantes: { type: integer, minimum: 1, maximum: 10000 }
+        periodos:
+          type: array
+          items: { $ref: '#/components/schemas/Periodo' }
+        recursos:
+          type: array
+          items: { $ref: '#/components/schemas/Solicitacao' }
+    Reserva:
+      allOf:
+        - $ref: '#/components/schemas/ReservaRequisicao'
+        - type: object
+          properties:
+            id: { $ref: '#/components/schemas/Id' }
+            status: { $ref: '#/components/schemas/Status' }
+            solicitanteNome:
+              type: string
+              nullable: true
+              description: Omitido para perfis sem direito a ver o nome (LGPD).
+              example: "Usuário Exemplo"
+            ultimaAlteracao: { type: string, format: date-time }
+            pedidosSnp:
+              type: array
+              items:
+                type: object
+                properties:
+                  numero: { type: string, example: "SNP-2025-000123" }
+                  link: { type: string, example: "https://snp.exemplo.gov.br/pedidos/SNP-2025-000123" }
+      example:
+        id: "1042"
+        status: PREVISTA
+        solicitanteNome: "Usuário Exemplo"
+        ambienteId: "12"
+        disposicaoId: "3"
+        finalidade: "Reunião de planejamento trimestral"
+        participantes: 15
+        periodos:
+          - id: "2001"
+            inicio: "2025-06-03T09:00:00"
+            termino: "2025-06-03T11:00:00"
+        recursos:
+          - recursoId: "7"
+            quantidade: 1
+        ultimaAlteracao: "2025-05-20T14:32:10"
+        pedidosSnp: []
+    Painel:
+      type: object
+      description: Grade de dias × reservas; itens de terceiros sem dados pessoais.
+      additionalProperties: true
+    FaixaHoraria:
+      type: object
+      required: [minimo, maximo]
+      properties:
+        minimo: { type: string, example: "07:00" }
+        maximo: { type: string, example: "20:00" }
+    Configuracao:
+      type: object
+      required: [antecedenciaMinutos, faixaGlobal]
+      properties:
+        antecedenciaMinutos: { type: integer, minimum: 0, maximum: 10080, example: 60 }
+        faixaGlobal: { $ref: '#/components/schemas/FaixaHoraria' }
+        faixasPorUnidade:
+          type: object
+          additionalProperties: { $ref: '#/components/schemas/FaixaHoraria' }
+          example:
+            PR-EX: { minimo: "08:00", maximo: "18:00" }
+    Erro:
+      type: object
+      required: [erros, correlationId]
+      properties:
+        erros:
+          type: array
+          items:
+            type: object
+            required: [codigo, mensagem]
+            properties:
+              codigo: { type: string, example: RN5 }
+              mensagem: { type: string, example: "RN5: o ambiente já está reservado neste período." }
+              campo: { type: string, nullable: true, example: "periodos[0]" }
+        correlationId: { type: string, example: "3f1c2a9e-0b7d-4c55-9a11-6e2f0d4b8c21" }
+
+  responses:
+    Erro400:
+      description: JSON malformado (SCHEMA_INVALIDO)
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Erro' }
+          example:
+            erros: [ { codigo: SCHEMA_INVALIDO, mensagem: "O corpo da requisição não é um JSON válido." } ]
+            correlationId: "3f1c2a9e-0b7d-4c55-9a11-6e2f0d4b8c21"
+    Erro401:
+      description: Token ausente ou inválido
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Erro' }
+    Erro403:
+      description: Acesso negado pelo Verified Permissions
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Erro' }
+    Erro404:
+      description: Reserva não encontrada
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Erro' }
+    Erro405:
+      description: Método não suportado
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Erro' }
+    Erro409:
+      description: Conflito de concorrência (RN7) ou período ocupado
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Erro' }
+          example:
+            erros: [ { codigo: RN7_CONFLITO_AO_SALVAR, mensagem: "RN7: a reserva foi alterada por outra pessoa. Recarregue e tente novamente." } ]
+            correlationId: "3f1c2a9e-0b7d-4c55-9a11-6e2f0d4b8c21"
+    Erro422:
+      description: Validação de campos (CAMPO_INVALIDO, CAMPO_NAO_PERMITIDO) ou regra de negócio (RNx)
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Erro' }
+          example:
+            erros: [ { codigo: RN1, mensagem: "RN1: a reserva exige antecedência mínima de 60 minutos." } ]
+            correlationId: "3f1c2a9e-0b7d-4c55-9a11-6e2f0d4b8c21"

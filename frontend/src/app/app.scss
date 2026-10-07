@@ -1,0 +1,103 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+// Link de pular: fora da tela até receber foco.
+.pular {
+  position: absolute;
+  left: -10000px;
+  top: 0;
+  z-index: 10;
+  padding: 0.5rem 1rem;
+  background: var(--mat-sys-surface);
+  color: var(--mat-sys-primary);
+  font-weight: 600;
+  &:focus {
+    left: 0.5rem;
+  }
+}
+// Barra de atalhos do eMAG (visível, discreta).
+.atalhos ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 1rem;
+  list-style: none;
+  margin: 0;
+  padding: 0.25rem 0.75rem;
+  background: var(--mat-sys-surface-container);
+  font-size: 0.875rem;
+  a {
+    color: #0b3d91; // ≈ 9:1 sobre o fundo claro
+    font-weight: 500;
+  }
+}
+.barra {
+  background: var(--mat-sys-primary);
+  color: var(--mat-sys-on-primary);
+  flex-wrap: wrap;
+  height: auto;
+  min-height: 64px;
+  gap: 0.5rem;
+  button {
+    color: inherit;
+  }
+  // Sobre o fundo primário o contorno escuro teria pouco contraste: usa branco.
+  :focus-visible {
+    outline-color: var(--sg-foco-inverso);
+  }
+}
+.titulo {
+  margin: 0;
+  font: var(--mat-sys-title-large);
+}
+.espaco {
+  flex: 1;
+}
+.usuario {
+  min-width: 0;
+  font: var(--mat-sys-body-medium);
+  overflow-wrap: anywhere;
+}
+.menu {
+  outline: none;
+}
+.menu ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  list-style: none;
+  margin: 0;
+  padding: 0.25rem 0.5rem;
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
+  a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 4px;
+    color: var(--mat-sys-on-surface);
+    text-decoration: none;
+    &:hover {
+      background: var(--mat-sys-surface-container-high);
+    }
+    &.ativo {
+      font-weight: 500;
+      text-decoration: underline;
+      background: var(--mat-sys-secondary-container);
+      color: var(--mat-sys-on-secondary-container);
+    }
+  }
+}
+a:focus-visible,
+button:focus-visible {
+  outline: 3px solid var(--sg-foco);
+  outline-offset: 2px;
+}
+// Conteúdo fluido limitado a 1920 px, centralizado.
+main {
+  outline: none;
+  display: block;
+  min-width: 0;
+  max-width: var(--sg-largura-max);
+  margin: 0 auto;
+}

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Adaptadores AWS compartilhados: repositórios DynamoDB, Autorizador AVP, logs. -->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>br.mp.mpf.sisgares</groupId>
+    <artifactId>sisgares-backend</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>comum-aws</artifactId>
+  <name>SISGARES - Comum AWS</name>
+
+  <dependencies>
+    <!-- comum-aws -> dominio -->
+    <dependency>
+      <groupId>br.mp.mpf.sisgares</groupId>
+      <artifactId>dominio</artifactId>
+    </dependency>
+    <!-- DynamoDB SDK v2 (versões gerenciadas pelo BOM software.amazon.awssdk:bom do pom pai) -->
+    <dependency>
+      <groupId>software.amazon.awssdk</groupId>
+      <artifactId>dynamodb</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>software.amazon.awssdk</groupId>
+      <artifactId>dynamodb-enhanced</artifactId>
+    </dependency>
+    <!-- Eventos/respostas do API Gateway HTTP API (versão no pom pai) -->
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-lambda-java-events</artifactId>
+    </dependency>
+    <!-- JSON: ObjectMapper com whitelist e suporte a java.time (versões no pom pai) -->
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.datatype</groupId>
+      <artifactId>jackson-datatype-jsr310</artifactId>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>comum-aws-sem-contextos</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <!-- comum-aws só pode depender de dominio, nunca dos contextos -->
+                <bannedDependencies>
+                  <excludes>
+                    <exclude>br.mp.mpf.sisgares</exclude>
+                  </excludes>
+                  <includes>
+                    <include>br.mp.mpf.sisgares:dominio</include>
+                  </includes>
+                  <message>O módulo comum-aws só pode depender de dominio (ordem: contextos -> comum-aws -> dominio).</message>
+                </bannedDependencies>
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>

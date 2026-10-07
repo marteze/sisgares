@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Núcleo_Domínio: Java puro, sem nenhuma dependência AWS. -->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>br.mp.mpf.sisgares</groupId>
+    <artifactId>sisgares-backend</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>dominio</artifactId>
+  <name>SISGARES - Domínio</name>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>dominio-sem-aws</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <!-- Proíbe qualquer artefato AWS (inclusive transitivo e de teste) -->
+                <bannedDependencies>
+                  <searchTransitive>true</searchTransitive>
+                  <excludes>
+                    <exclude>software.amazon.*</exclude>
+                    <exclude>com.amazonaws</exclude>
+                  </excludes>
+                  <message>O módulo dominio deve ser Java puro: dependências software.amazon.* / com.amazonaws são proibidas.</message>
+                </bannedDependencies>
+                <!-- dominio é a base: não pode depender de outros módulos do projeto -->
+                <bannedDependencies>
+                  <excludes>
+                    <exclude>br.mp.mpf.sisgares</exclude>
+                  </excludes>
+                  <message>O módulo dominio não pode depender de outros módulos do SISGARES.</message>
+                </bannedDependencies>
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>

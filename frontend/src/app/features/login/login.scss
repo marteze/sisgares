@@ -1,0 +1,37 @@
+.login {
+  display: flex;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.cartao {
+  width: 100%;
+  min-width: 0;
+  max-width: 28rem;
+}
+
+h2 {
+  margin: 0;
+  font: var(--mat-sys-title-large);
+}
+
+fieldset {
+  border: 1px solid var(--mat-sys-outline);
+  border-radius: 4px;
+  margin: 0;
+  padding: 0.5rem 1rem;
+}
+
+legend {
+  padding: 0 0.25rem;
+}
+
+.opcoes {
+  display: flex;
+  flex-direction: column;
+}
+
+.erro {
+  color: var(--mat-sys-error);
+  min-height: 1.5em;
+}

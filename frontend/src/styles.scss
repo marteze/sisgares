@@ -1,0 +1,128 @@
+// Tema global do SISGARES (Angular Material 3) com ajustes de acessibilidade
+// (Req. 20 — WCAG 2.1 AA / eMAG). Os componentes usam as variáveis `--mat-sys-*`.
+@use '@angular/material' as mat;
+
+html {
+  height: 100%;
+  // Paleta azure: primary (tom 40, #005cbb) sobre branco ≈ 6:1 — atende AA (≥ 4,5:1).
+  @include mat.theme(
+    (
+      color: (
+        primary: mat.$azure-palette,
+        tertiary: mat.$blue-palette,
+      ),
+      typography: Roboto,
+      density: 0,
+    )
+  );
+  // Reforça o contraste de textos secundários e contornos (on-surface-variant e outline
+  // padrão ficam próximos do limite; estes valores garantem ≥ 4,5:1 e ≥ 3:1 sobre branco).
+  @include mat.theme-overrides(
+    (
+      on-surface: #1a1c1e,
+      on-surface-variant: #3f4450,
+      outline: #6b707c,
+      error: #b00020,
+    )
+  );
+
+  // Cores de apoio para estilos próprios.
+  --sg-foco: #1a4fa0; // ≈ 8:1 sobre branco (requisito de foco: ≥ 3:1)
+  --sg-foco-inverso: #ffffff; // usado sobre fundos escuros (barra superior)
+  --sg-perigo: #b00020; // branco sobre este fundo ≈ 6,9:1
+  --sg-perigo-hover: #8c001a;
+  --sg-largura-max: 120rem; // 1920 px
+}
+
+body {
+  color-scheme: light;
+  background-color: var(--mat-sys-surface);
+  color: var(--mat-sys-on-surface);
+  font: var(--mat-sys-body-medium);
+  margin: 0;
+  height: 100%;
+  // A página não rola na horizontal entre 360 e 1920 px; só as grades rolam internamente.
+  overflow-x: hidden;
+  overflow-wrap: break-word;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+// Mídias e tabelas nunca ultrapassam o contêiner.
+img,
+svg,
+video {
+  max-width: 100%;
+  height: auto;
+}
+
+// Itens flex/grid podem encolher abaixo do conteúdo intrínseco (evita estouro lateral).
+:where(main, section, article, form, fieldset, .mat-mdc-form-field) {
+  min-width: 0;
+}
+
+// Foco visível global: contorno de 3 px com contraste ≥ 3:1 (WCAG 2.4.7 / 1.4.11).
+:focus-visible {
+  outline: 3px solid var(--sg-foco);
+  outline-offset: 2px;
+}
+
+// Contêineres com rolagem interna (grades e tabelas) — Req. 20.1.
+.grade-rolagem,
+.colunas-rolagem,
+.tabela-rolagem {
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+// Botão de ação destrutiva (ex.: "Confirmar cancelamento") com contraste AA.
+.mat-mdc-unelevated-button.botao-perigo,
+.mat-mdc-raised-button.botao-perigo,
+.botao-perigo {
+  --mat-button-filled-container-color: var(--sg-perigo);
+  --mat-button-filled-label-text-color: #ffffff;
+  --mat-button-protected-container-color: var(--sg-perigo);
+  --mat-button-protected-label-text-color: #ffffff;
+  background-color: var(--sg-perigo);
+  color: #ffffff;
+
+  &:hover {
+    --mat-button-filled-container-color: var(--sg-perigo-hover);
+    background-color: var(--sg-perigo-hover);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--sg-foco);
+    outline-offset: 2px;
+  }
+}
+
+// Texto apenas para leitores de tela.
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+// Respeita a preferência por menos movimento (WCAG 2.3.3).
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

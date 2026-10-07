@@ -1,0 +1,17 @@
+{
+  "app": "mvn -e -q compile exec:java",
+  "profile": "hackaton",
+  "watch": {
+    "include": ["**"],
+    "exclude": ["README.md", "cdk*.json", "target", "pom.xml", "src/test", "cedar"]
+  },
+  "context": {
+    "sisgares:region": "us-east-1",
+    "@aws-cdk/core:checkSecretUsage": true,
+    "@aws-cdk/core:target-partitions": ["aws"],
+    "@aws-cdk/aws-iam:minimizePolicies": true,
+    "@aws-cdk/aws-s3:createDefaultLoggingPolicy": true,
+    "@aws-cdk/aws-lambda:recognizeLayerVersion": true,
+    "@aws-cdk/aws-cloudfront:defaultSecurityPolicyTLSv1.2_2021": true
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "enabled": true,
+  "name": "Testes do domínio",
+  "description": "Executa os testes do Núcleo_Domínio (módulo Maven dominio) sempre que um arquivo Java do backend for salvo (Requisito 19.3).",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "backend/**/*.java"
+    ]
+  },
+  "then": {
+    "type": "runCommand",
+    "command": "mvn -q -f backend/pom.xml -pl dominio test"
+  }
+}

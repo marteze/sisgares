@@ -1,0 +1,11 @@
+# Artefatos de build do Maven (backend)
+target/
+
+# Dependências do Node (frontend e infra)
+node_modules/
+
+# Saída de síntese do AWS CDK
+cdk.out/
+
+# Variáveis de ambiente locais (podem conter segredos)
+.env

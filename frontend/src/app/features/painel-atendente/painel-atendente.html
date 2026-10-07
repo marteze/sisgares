@@ -1,0 +1,87 @@
+<section class="painel" aria-labelledby="titulo-pagina">
+  <h2 id="titulo-pagina" tabindex="-1">Painel do atendente</h2>
+
+  <form class="filtros" aria-label="Filtros do painel" (submit)="$event.preventDefault()">
+    <mat-form-field appearance="outline">
+      <mat-label>Data de referência</mat-label>
+      <input matInput type="date" [value]="data()" (change)="alterarData($any($event.target).value)" required />
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Colunas (datas)</mat-label>
+      <mat-select [value]="colunas()" (valueChange)="alterarColunas($event)">
+        @for (n of opcoesColunas; track n) {
+          <mat-option [value]="n">{{ n }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <mat-checkbox [checked]="fds()" (change)="alterarFds($event.checked)">Exibir fins de semana</mat-checkbox>
+  </form>
+
+  @if (erroFiltro(); as erro) {
+    <p class="erro" role="alert">{{ erro }}</p>
+  }
+  <p class="status" [class.aviso-demo]="demonstracao() && !carregando()" aria-live="polite" role="status">
+    {{ mensagemStatus() }}
+  </p>
+
+  @if (colunasVisao().length) {
+    <div class="colunas-rolagem" tabindex="0" role="region" aria-label="Reservas por data (role para ver mais datas)">
+      @for (c of colunasVisao(); track c.data) {
+        <section class="coluna" [attr.aria-labelledby]="'col-' + c.data">
+          <h3 [id]="'col-' + c.data">
+            <span class="dia-semana">{{ c.diaSemana }}</span>
+            <span>{{ c.rotulo }}</span>
+          </h3>
+          @if (c.cards.length) {
+            <ul class="cards">
+              @for (card of c.cards; track card.reservaId) {
+                <li>
+                  <article class="card" [class.cancelada]="card.cancelada">
+                    <h4>
+                      <span class="horario">{{ card.horaInicio }}–{{ card.horaTermino }}</span>
+                      {{ card.finalidade }}
+                    </h4>
+                    @if (card.cancelada) {
+                      <p class="selo-cancelada"><strong>Cancelada</strong></p>
+                    }
+                    <dl>
+                      <dt>Solicitante</dt><dd>{{ card.solicitanteNome }}</dd>
+                      <dt>Ambiente</dt><dd>{{ card.ambiente }}</dd>
+                      @if (card.recursos.length) {
+                        <dt>Recursos</dt>
+                        <dd>
+                          <ul class="lista-simples">
+                            @for (r of card.recursos; track r.descricao) {
+                              <li>{{ r.descricao }}@if (r.quantidade != null) { ({{ r.quantidade }}) }</li>
+                            }
+                          </ul>
+                        </dd>
+                      }
+                      @if (card.pedidosSnp.length) {
+                        <dt>Pedidos SNP</dt>
+                        <dd>
+                          <ul class="lista-simples">
+                            @for (p of card.pedidosSnp; track p.numero) {
+                              <li>
+                                <a [href]="p.link" target="_blank" rel="noopener noreferrer"
+                                   [attr.aria-label]="'Pedido SNP ' + p.numero + ' (abre em nova aba)'">{{ p.numero }}</a>
+                              </li>
+                            }
+                          </ul>
+                        </dd>
+                      }
+                    </dl>
+                    <a class="link-reserva" [routerLink]="['/reservas', card.reservaId]"
+                       [attr.aria-label]="'Abrir reserva ' + card.finalidade + ' de ' + c.rotulo + ' às ' + card.horaInicio">Ver reserva</a>
+                  </article>
+                </li>
+              }
+            </ul>
+          } @else {
+            <p class="vazio">Nenhuma reserva nesta data.</p>
+          }
+        </section>
+      }
+    </div>
+  }
+</section>

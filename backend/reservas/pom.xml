@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Contexto reservas: depende de comum-aws (ordem: contextos -> comum-aws -> dominio). -->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>br.mp.mpf.sisgares</groupId>
+    <artifactId>sisgares-backend</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>reservas</artifactId>
+  <name>SISGARES - Reservas</name>
+
+  <dependencies>
+    <!-- contexto -> comum-aws (que traz dominio transitivamente) -->
+    <dependency>
+      <groupId>br.mp.mpf.sisgares</groupId>
+      <artifactId>comum-aws</artifactId>
+    </dependency>
+    <!--
+      Bean Validation (Req. 6.3). O ValidadorEntrada usa ParameterMessageInterpolator,
+      por isso não é necessária implementação de Jakarta EL (expressly).
+    -->
+    <dependency>
+      <groupId>jakarta.validation</groupId>
+      <artifactId>jakarta.validation-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.hibernate.validator</groupId>
+      <artifactId>hibernate-validator</artifactId>
+    </dependency>
+    <!-- Publicação do Evento_Reserva no EventBridge (versão pelo BOM do AWS SDK no pom pai) -->
+    <dependency>
+      <groupId>software.amazon.awssdk</groupId>
+      <artifactId>eventbridge</artifactId>
+    </dependency>
+    <!-- RequestHandler/Context da Lambda (versão gerenciada no pom pai) -->
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-lambda-java-core</artifactId>
+    </dependency>
+  </dependencies>
+  <build>
+    <plugins>
+      <!--
+        Jar único da Lambda: substitui o artefato principal, gerando
+        target/reservas-0.1.0-SNAPSHOT.jar (referenciado pela ApiStack).
+      -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>3.6.0</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <createDependencyReducedPom>false</createDependencyReducedPom>
+              <shadedArtifactAttached>false</shadedArtifactAttached>
+              <filters>
+                <filter>
+                  <!-- Assinaturas de dependências invalidam o jar sombreado -->
+                  <artifact>*:*</artifact>
+                  <excludes>
+                    <exclude>META-INF/*.SF</exclude>
+                    <exclude>META-INF/*.DSA</exclude>
+                    <exclude>META-INF/*.RSA</exclude>
+                    <exclude>module-info.class</exclude>
+                  </excludes>
+                </filter>
+              </filters>
+              <transformers>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+              </transformers>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>
