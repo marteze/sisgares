@@ -1,0 +1,8 @@
+﻿C:\Program Files\Git -> False
+C:\Program Files (x86)\Git -> False
+C:\Users\Daniel\AppData\Local\Programs\Git -> False
+C:\Users\Daniel\AppData\Local\GitHubDesktop -> True
+C:\ProgramData\chocolatey\bin\git.exe -> False
+C:\Users\Daniel\scoop\apps\git -> False
+cmd_git -> 
+cmd_gh -> 
