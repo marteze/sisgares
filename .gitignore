@@ -9,3 +9,11 @@ cdk.out/
 
 # Variáveis de ambiente locais (podem conter segredos)
 .env
+
+# Arquivos locais do macOS
+.DS_Store
+# Worktrees e tarefas locais dos agentes
+.worktrees/
+.agents/
+# Saídas do deploy (IDs da conta), geradas a cada cdk deploy
+infra/cdk-outputs.json

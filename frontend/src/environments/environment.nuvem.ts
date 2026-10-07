@@ -2,17 +2,17 @@ import { Ambiente } from './ambiente';
 
 /**
  * Configuração de nuvem: Cognito Hosted UI com PKCE.
- * Os valores abaixo são placeholders e devem ser substituídos pelas saídas do stack CDK
- * (domínio do user pool e app client público). Não há segredos neste arquivo.
+ * Valores obtidos das saídas do deploy (domínio do user pool e app client público).
+ * O client ID é público (cliente sem segredo, PKCE). Não há segredos neste arquivo.
  */
 export const environment: Ambiente = {
   modoAutenticacao: 'cognito',
   apiBase: '/api',
   cognito: {
-    dominio: 'https://sisgares.auth.us-east-1.amazoncognito.com',
-    clientId: 'SUBSTITUIR_PELO_CLIENT_ID',
-    redirectUri: 'https://SUBSTITUIR_PELO_DOMINIO/auth/callback',
-    logoutUri: 'https://SUBSTITUIR_PELO_DOMINIO/login',
+    dominio: 'https://sisgares-hackaton.auth.us-east-1.amazoncognito.com',
+    clientId: '1nlicv2todgpen7q2kkj967bh7',
+    redirectUri: 'https://d2tz68zpw6i1uf.cloudfront.net/auth/callback',
+    logoutUri: 'https://d2tz68zpw6i1uf.cloudfront.net/login',
     escopos: ['openid', 'email', 'profile'],
   },
 };

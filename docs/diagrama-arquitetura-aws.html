@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SISGARES — Diagrama de Arquitetura AWS</title>
+  <style>
+    :root {
+      --aws-navy: #232f3e;
+      --aws-orange: #ff9900;
+      --compute: #ed7100;
+      --network: #8c4fff;
+      --storage: #7aa116;
+      --database: #2e73b8;
+      --security: #dd344c;
+      --integration: #e7157b;
+      --management: #c925d1;
+      --bg: #f2f4f6;
+      --card: #ffffff;
+      --line: #cfd6dd;
+      --text: #16191f;
+      --muted: #5f6b7a;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.4;
+    }
+
+    header {
+      background: var(--aws-navy);
+      color: #fff;
+      padding: 24px 32px;
+      border-bottom: 4px solid var(--aws-orange);
+    }
+
+    header h1 { margin: 0 0 6px; font-size: 1.6rem; }
+    header p { margin: 0; color: #c9d1d9; font-size: 0.95rem; }
+
+    main { padding: 28px 32px 48px; max-width: 1400px; margin: 0 auto; }
+
+    .legenda {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-bottom: 28px;
+      font-size: 0.82rem;
+    }
+    .legenda .item { display: flex; align-items: center; gap: 6px; }
+    .legenda .swatch {
+      width: 14px; height: 14px; border-radius: 3px; display: inline-block;
+    }
+
+    .diagrama {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 18px;
+    }
+
+    .grupo {
+      border: 2px dashed var(--line);
+      border-radius: 12px;
+      padding: 16px;
+      background: rgba(255, 255, 255, 0.5);
+      position: relative;
+    }
+    .grupo > .titulo-grupo {
+      position: absolute;
+      top: -12px;
+      left: 16px;
+      background: var(--bg);
+      padding: 0 10px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: var(--aws-navy);
+    }
+    .grupo .conteudo {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .no {
+      background: var(--card);
+      border-radius: 10px;
+      border: 1px solid #e3e8ee;
+      border-left: 5px solid var(--muted);
+      box-shadow: 0 1px 3px rgba(16, 25, 40, 0.08);
+      padding: 10px 12px;
+      min-width: 150px;
+      flex: 1 1 150px;
+    }
+    .no .svc { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; }
+    .no .nome { font-size: 0.9rem; font-weight: 600; margin: 2px 0; }
+    .no .desc { font-size: 0.76rem; color: var(--muted); }
+
+    .no.compute { border-left-color: var(--compute); }
+    .no.compute .svc { color: var(--compute); }
+    .no.network { border-left-color: var(--network); }
+    .no.network .svc { color: var(--network); }
+    .no.storage { border-left-color: var(--storage); }
+    .no.storage .svc { color: var(--storage); }
+    .no.database { border-left-color: var(--database); }
+    .no.database .svc { color: var(--database); }
+    .no.security { border-left-color: var(--security); }
+    .no.security .svc { color: var(--security); }
+    .no.integration { border-left-color: var(--integration); }
+    .no.integration .svc { color: var(--integration); }
+    .no.management { border-left-color: var(--management); }
+    .no.management .svc { color: var(--management); }
+    .no.ator { border-left-color: var(--aws-navy); background: #eef1f5; }
+    .no.ator .svc { color: var(--aws-navy); }
+
+    /* layout em faixas */
+    .faixa { grid-column: 1 / -1; }
+    .faixa h2 {
+      font-size: 0.95rem;
+      color: var(--aws-navy);
+      margin: 10px 0 2px;
+      border-bottom: 2px solid var(--aws-orange);
+      display: inline-block;
+      padding-bottom: 2px;
+    }
+
+    .seta {
+      text-align: center;
+      color: var(--muted);
+      font-size: 1.4rem;
+      grid-column: 1 / -1;
+      margin: -4px 0;
+    }
+    .seta small { display: block; font-size: 0.72rem; }
+
+    .colunas { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    @media (max-width: 900px) { .colunas { grid-template-columns: 1fr; } }
+
+    .fluxo {
+      margin-top: 40px;
+      background: var(--card);
+      border: 1px solid #e3e8ee;
+      border-radius: 12px;
+      padding: 20px 24px;
+    }
+    .fluxo h2 { margin-top: 0; color: var(--aws-navy); font-size: 1.1rem; }
+    .fluxo ol { margin: 0; padding-left: 20px; }
+    .fluxo li { margin-bottom: 6px; font-size: 0.9rem; }
+    .tag {
+      display: inline-block;
+      background: #eef1f5;
+      border-radius: 4px;
+      padding: 1px 6px;
+      font-size: 0.75rem;
+      font-family: "SF Mono", Consolas, monospace;
+      color: var(--aws-navy);
+    }
+
+    footer {
+      padding: 18px 32px;
+      color: var(--muted);
+      font-size: 0.8rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>SISGARES — Arquitetura AWS Serverless</h1>
+    <p>Região <strong>us-east-1</strong> · Provisionamento em CDK Java · Stacks: Seguranca, Dados, Api, Eventos, Front</p>
+  </header>
+
+  <main>
+    <div class="legenda" aria-label="Legenda de categorias de serviço">
+      <span class="item"><span class="swatch" style="background:var(--compute)"></span>Compute</span>
+      <span class="item"><span class="swatch" style="background:var(--network)"></span>Rede / Entrega</span>
+      <span class="item"><span class="swatch" style="background:var(--storage)"></span>Armazenamento</span>
+      <span class="item"><span class="swatch" style="background:var(--database)"></span>Banco de dados</span>
+      <span class="item"><span class="swatch" style="background:var(--security)"></span>Segurança / Identidade</span>
+      <span class="item"><span class="swatch" style="background:var(--integration)"></span>Integração de eventos</span>
+      <span class="item"><span class="swatch" style="background:var(--management)"></span>Gestão / Observabilidade</span>
+    </div>
+
+    <div class="diagrama">
+
+      <!-- Camada: usuário e entrega -->
+      <div class="faixa"><h2>Usuário e entrega de conteúdo</h2></div>
+
+      <div class="grupo" style="grid-column: 1 / -1;">
+        <span class="titulo-grupo">Acesso</span>
+        <div class="conteudo">
+          <div class="no ator">
+            <div class="svc">Ator</div>
+            <div class="nome">Usuário (navegador)</div>
+            <div class="desc">Solicitante · Setor_Atendente · Administrador</div>
+          </div>
+          <div class="no network">
+            <div class="svc">CloudFront</div>
+            <div class="nome">Distribuição + OAC</div>
+            <div class="desc">Entrega do SPA Angular via HTTPS</div>
+          </div>
+          <div class="no storage">
+            <div class="svc">S3</div>
+            <div class="nome">BucketFrontend</div>
+            <div class="desc">Artefatos estáticos do Angular</div>
+          </div>
+          <div class="no security">
+            <div class="svc">Cognito</div>
+            <div class="nome">User Pool</div>
+            <div class="desc">Hosted UI / PKCE · grupos de perfil · emite JWT</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="seta">⬇ <small>HTTPS + Bearer JWT para <span class="tag">/api/*</span></small></div>
+
+      <!-- Camada: API -->
+      <div class="faixa"><h2>Camada de API (ApiStack)</h2></div>
+
+      <div class="grupo" style="grid-column: 1 / -1;">
+        <span class="titulo-grupo">API Gateway HTTP API — authorizer JWT</span>
+        <div class="conteudo">
+          <div class="no network">
+            <div class="svc">API Gateway</div>
+            <div class="nome">HTTP API /api/*</div>
+            <div class="desc">Valida JWT no authorizer antes do roteamento</div>
+          </div>
+          <div class="no compute">
+            <div class="svc">Lambda</div>
+            <div class="nome">reservas</div>
+            <div class="desc">Criação/alteração/cancelamento · publica eventos</div>
+          </div>
+          <div class="no compute">
+            <div class="svc">Lambda</div>
+            <div class="nome">paineis</div>
+            <div class="desc">Visões por setor e ambiente</div>
+          </div>
+          <div class="no compute">
+            <div class="svc">Lambda</div>
+            <div class="nome">catalogo</div>
+            <div class="desc">Ambientes e recursos · imagens</div>
+          </div>
+          <div class="no compute">
+            <div class="svc">Lambda</div>
+            <div class="nome">configuracao</div>
+            <div class="desc">Parâmetros e regras</div>
+          </div>
+          <div class="no security">
+            <div class="svc">Verified Permissions</div>
+            <div class="nome">Políticas Cedar</div>
+            <div class="desc">IsAuthorized em cada handler</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="seta">⬇ <small>acesso a dados e armazenamento</small></div>
+
+      <!-- Camada: dados -->
+      <div class="faixa"><h2>Dados (DadosStack)</h2></div>
+
+      <div class="grupo" style="grid-column: 1 / -1;">
+        <span class="titulo-grupo">Persistência</span>
+        <div class="conteudo">
+          <div class="no database">
+            <div class="svc">DynamoDB</div>
+            <div class="nome">Tabela sisgares</div>
+            <div class="desc">Single-table · 5 GSIs · TTL expiraEm · PITR</div>
+          </div>
+          <div class="no storage">
+            <div class="svc">S3</div>
+            <div class="nome">BucketImagens</div>
+            <div class="desc">Imagens de ambientes/recursos (via Lambda catalogo)</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="seta">⬇ <small>Lambda reservas → <span class="tag">PutEvents</span> após commit (padrão OUTBOX)</small></div>
+
+      <!-- Camada: eventos -->
+      <div class="faixa"><h2>Orquestração de eventos (EventosStack)</h2></div>
+
+      <div class="colunas faixa">
+        <div class="grupo">
+          <span class="titulo-grupo">Barramento e fluxo</span>
+          <div class="conteudo">
+            <div class="no integration" style="flex-basis:100%">
+              <div class="svc">EventBridge</div>
+              <div class="nome">Barramento + RegraReserva</div>
+              <div class="desc">Captura detail-type com prefixo Reserva*</div>
+            </div>
+            <div class="no integration" style="flex-basis:100%">
+              <div class="svc">Step Functions</div>
+              <div class="nome">FluxoPosReserva</div>
+              <div class="desc">Executa consumidores em ramos paralelos</div>
+            </div>
+            <div class="no compute">
+              <div class="svc">Lambda</div>
+              <div class="nome">Notificador</div>
+              <div class="desc">Idempotente · EscapadorHtml · envia e-mail</div>
+            </div>
+            <div class="no compute">
+              <div class="svc">Lambda</div>
+              <div class="nome">Cliente SNP</div>
+              <div class="desc">Idempotente · integra sistema externo</div>
+            </div>
+            <div class="no compute">
+              <div class="svc">Lambda</div>
+              <div class="nome">SNP simulado</div>
+              <div class="desc">Mock do serviço externo</div>
+            </div>
+            <div class="no integration">
+              <div class="svc">SES</div>
+              <div class="nome">Amazon SES</div>
+              <div class="desc">Entrega dos e-mails de notificação</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grupo">
+          <span class="titulo-grupo">Resiliência e republicação</span>
+          <div class="conteudo">
+            <div class="no management" style="flex-basis:100%">
+              <div class="svc">EventBridge</div>
+              <div class="nome">Regra agendada (rate 1 min)</div>
+              <div class="desc">Dispara o Republicador do OUTBOX</div>
+            </div>
+            <div class="no compute" style="flex-basis:100%">
+              <div class="svc">Lambda</div>
+              <div class="nome">Republicador</div>
+              <div class="desc">Reenvia itens pendentes do OUTBOX ao barramento</div>
+            </div>
+            <div class="no integration" style="flex-basis:100%">
+              <div class="svc">SQS</div>
+              <div class="nome">DlqFluxoPosReserva</div>
+              <div class="desc">Falhas após retries (Catch) · cifrada por KMS</div>
+            </div>
+            <div class="no management">
+              <div class="svc">CloudWatch</div>
+              <div class="nome">Alarms</div>
+              <div class="desc">Monitoramento</div>
+            </div>
+            <div class="no integration">
+              <div class="svc">SNS</div>
+              <div class="nome">TopicoAlarmes</div>
+              <div class="desc">Notificação dos alarmes</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Camada: segurança transversal -->
+      <div class="faixa"><h2>Segurança transversal (SegurancaStack)</h2></div>
+
+      <div class="grupo" style="grid-column: 1 / -1;">
+        <span class="titulo-grupo">Criptografia e auditoria</span>
+        <div class="conteudo">
+          <div class="no security">
+            <div class="svc">KMS</div>
+            <div class="nome">CMK</div>
+            <div class="desc">Cifra DynamoDB, S3, SQS e CloudTrail (dados em repouso)</div>
+          </div>
+          <div class="no management">
+            <div class="svc">CloudTrail</div>
+            <div class="nome">Trilha de auditoria</div>
+            <div class="desc">Registra uso de recursos e da CMK</div>
+          </div>
+          <div class="no management">
+            <div class="svc">CloudWatch Logs</div>
+            <div class="nome">Logs por Lambda</div>
+            <div class="desc">Retenção de 90 dias · sem dados pessoais</div>
+          </div>
+          <div class="no security">
+            <div class="svc">IAM</div>
+            <div class="nome">Papéis por Lambda</div>
+            <div class="desc">Privilégio mínimo (ações e ARNs específicos)</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <section class="fluxo">
+      <h2>Fluxo de uma reserva (resumo)</h2>
+      <ol>
+        <li>Frontend chama <span class="tag">POST /api/reservas</span> com <span class="tag">Bearer JWT</span>; o API Gateway valida o token no authorizer.</li>
+        <li>A Lambda <strong>reservas</strong> consulta o Verified Permissions (<span class="tag">IsAuthorized(CriarReserva)</span>).</li>
+        <li>Com ALLOW, grava reserva e evento no mesmo <span class="tag">TransactWriteItems</span> (META, PRES/SOLI, VERS, CTRL condicional e OUTBOX).</li>
+        <li>Conflito de versão retorna <span class="tag">409</span>; em sucesso, publica <span class="tag">PutEvents</span> (ReservaCriada/Alterada/Cancelada) e remove o item do OUTBOX.</li>
+        <li>EventBridge aciona o Step Functions, que executa Notificador (e-mail via SES) e Cliente SNP em paralelo, de forma idempotente.</li>
+        <li>Falhas após retries caem na <strong>DLQ SQS</strong>; o <strong>Republicador</strong> (rate 1 min) reenvia itens restantes do OUTBOX.</li>
+      </ol>
+    </section>
+  </main>
+
+  <footer>
+    Diagrama gerado a partir de <span class="tag">docs/arquitetura.md</span> · SISGARES · dados em repouso cifrados por CMK, tráfego somente via TLS.
+  </footer>
+</body>
+</html>
