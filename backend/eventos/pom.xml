@@ -30,6 +30,17 @@
       <groupId>com.amazonaws</groupId>
       <artifactId>aws-lambda-java-core</artifactId>
     </dependency>
+    <!-- Testes de integração com DynamoDB Local (Testcontainers); só em escopo de teste -->
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>testcontainers</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
   <build>
     <plugins>
