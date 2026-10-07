@@ -93,6 +93,22 @@
   .live .val{font-size:1.02rem;color:var(--accent);font-weight:700;margin-top:3px;word-break:break-all}
   .live .val.ink{color:var(--ink)}
   .foot-note{margin-top:auto;font-size:.86rem;color:var(--muted);padding-top:14px}
+  /* ---- demo + QR ---- */
+  .demo-wrap{display:grid;grid-template-columns:300px 1fr;gap:26px;align-items:center;margin-top:12px}
+  .qr-card{background:linear-gradient(160deg,#0a3d62,#071a2b);border-radius:20px;padding:20px;text-align:center;
+    box-shadow:0 14px 36px rgba(7,26,43,.35)}
+  .qr-box{width:220px;height:220px;margin:0 auto;background:#fff;border-radius:14px;padding:14px;
+    display:grid;place-items:center;box-shadow:0 6px 18px rgba(0,0,0,.18)}
+  .qr-box svg{display:block;width:100%;height:100%}
+  .qr-url{margin-top:14px;color:#fff;font-weight:700;font-size:.98rem;word-break:break-all;line-height:1.3}
+  .qr-sub{margin-top:4px;color:#9fc0dc;font-size:.8rem}
+  .demo-info{align-self:center}
+  .demo-row{display:flex;gap:12px;align-items:flex-start;font-size:1.02rem;color:#1e293b;padding:11px 0;border-bottom:1px solid var(--line)}
+  .demo-row:last-child{border-bottom:none}
+  .demo-row b{color:var(--ink)}
+  .demo-ico{flex:0 0 38px;width:38px;height:38px;border-radius:11px;display:grid;place-items:center;font-size:1.2rem;
+    background:linear-gradient(135deg,var(--mpf),var(--mpf2))}
+  .demo-ico.aws{background:linear-gradient(135deg,var(--aws),var(--aws2))}
   /* ---- rodapé/navegação ---- */
   .hud{position:fixed;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:space-between;
     padding:14px 26px;color:#cbd8e6;font-size:.82rem}
@@ -142,7 +158,7 @@
   .donut-c .mid .center{position:absolute;inset:0;display:grid;place-content:center;text-align:center}
   .donut-c .center .big{font-size:2rem;font-weight:800;color:var(--ink);line-height:1}
   .donut-c .center .small{font-size:.76rem;color:var(--muted);margin-top:3px}
-  @media (max-width:560px){.c2,.c3,.c4,.kpis,.seg,.live,.time,.graf-wrap{grid-template-columns:1fr}.slide{padding:30px 26px}h1{font-size:1.9rem}}
+  @media (max-width:560px){.c2,.c3,.c4,.kpis,.seg,.live,.time,.graf-wrap,.demo-wrap{grid-template-columns:1fr}.slide{padding:30px 26px}h1{font-size:1.9rem}.qr-box{width:180px;height:180px}}
 </style>
 </head>
 <body>
@@ -320,15 +336,21 @@
   <!-- 10. DEMO AO VIVO -->
   <section class="slide">
     <div class="eyebrow"><span class="dot"></span>Demonstração ao vivo</div>
-    <h2>No ar na AWS, agora</h2>
-    <div class="live">
-      <div class="box"><div class="lab">Aplicação (CloudFront)</div><div class="val">d2tz68zpw6i1uf.cloudfront.net</div></div>
-      <div class="box"><div class="lab">API (HTTP API + Cognito)</div><div class="val ink">/api/* · JWT obrigatório</div></div>
-    </div>
-    <div class="cols c3" style="margin-top:16px">
-      <div class="card"><h3><span class="ico">👤</span>Solicitante</h3><p>Cria uma reserva e vê o conflito ser bloqueado em tempo real na grade.</p></div>
-      <div class="card"><h3><span class="ico">🏢</span>Atendente</h3><p>Vê as reservas do seu setor e exporta o relatório (CSV/PDF).</p></div>
-      <div class="card"><h3><span class="ico aws">🤖</span>Assistente</h3><p>Pede um horário em linguagem natural e recebe a proposta pronta.</p></div>
+    <h2>No ar na AWS — aponte a câmera</h2>
+    <div class="demo-wrap">
+      <div class="qr-card">
+        <div class="qr-box" aria-label="QR Code para a aplicação SISGARES">
+<svg viewBox="0 0 33 33" width="100%" height="100%" shape-rendering="crispEdges" role="img" aria-label="QR Code"><path fill="#fff" d="M0 0h33v33h-33z"/><path stroke="#0a3d62" d="M2 2.5h7m3 0h1m3 0h1m1 0h4m2 0h7m-29 1h1m5 0h1m2 0h4m1 0h4m4 0h1m5 0h1m-29 1h1m1 0h3m1 0h1m1 0h1m1 0h2m3 0h2m1 0h3m1 0h1m1 0h3m1 0h1m-29 1h1m1 0h3m1 0h1m1 0h5m2 0h1m1 0h1m4 0h1m1 0h3m1 0h1m-29 1h1m1 0h3m1 0h1m1 0h1m1 0h1m1 0h1m3 0h1m1 0h3m1 0h1m1 0h3m1 0h1m-29 1h1m5 0h1m1 0h1m1 0h2m3 0h1m1 0h2m1 0h1m1 0h1m5 0h1m-29 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-21 1h2m2 0h1m3 0h1m3 0h1m-21 1h1m1 0h5m3 0h2m5 0h1m2 0h1m1 0h5m-27 1h1m3 0h1m2 0h1m2 0h1m2 0h1m2 0h5m1 0h1m1 0h1m3 0h1m-26 1h2m1 0h1m1 0h1m1 0h1m1 0h4m4 0h1m-21 1h2m1 0h2m3 0h1m2 0h3m2 0h1m1 0h1m2 0h2m2 0h1m1 0h1m-27 1h2m1 0h1m1 0h1m2 0h4m1 0h1m2 0h1m2 0h2m1 0h1m1 0h2m-27 1h2m1 0h3m2 0h1m1 0h3m4 0h3m2 0h3m3 0h1m-27 1h1m1 0h3m2 0h1m1 0h2m2 0h1m1 0h1m2 0h3m1 0h3m-27 1h1m2 0h1m3 0h2m3 0h1m1 0h3m4 0h1m1 0h2m2 0h1m-28 1h3m1 0h3m2 0h1m2 0h1m2 0h3m1 0h1m3 0h1m1 0h2m-27 1h1m1 0h1m1 0h2m1 0h2m1 0h5m1 0h1m2 0h2m1 0h3m1 0h1m1 0h1m-29 1h1m1 0h1m3 0h4m1 0h5m5 0h2m3 0h1m-27 1h1m2 0h2m3 0h1m3 0h2m2 0h1m2 0h4m1 0h1m2 0h1m-28 1h1m4 0h5m1 0h1m2 0h1m2 0h1m2 0h5m1 0h3m-21 1h1m3 0h1m3 0h1m1 0h3m3 0h5m-29 1h7m2 0h4m2 0h2m2 0h2m1 0h1m1 0h3m-27 1h1m5 0h1m1 0h2m1 0h2m1 0h1m1 0h1m1 0h1m1 0h1m3 0h1m-25 1h1m1 0h3m1 0h1m1 0h2m1 0h2m4 0h1m2 0h5m1 0h1m-27 1h1m1 0h3m1 0h1m1 0h2m1 0h4m1 0h1m1 0h3m2 0h1m1 0h4m-29 1h1m1 0h3m1 0h1m1 0h2m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m2 0h1m1 0h4m-28 1h1m5 0h1m3 0h2m6 0h4m2 0h2m1 0h1m-28 1h7m1 0h2m1 0h2m2 0h3m1 0h1m1 0h1m1 0h2m1 0h1"/></svg>
+        </div>
+        <div class="qr-url">d2tz68zpw6i1uf.cloudfront.net</div>
+        <div class="qr-sub">Abre o SISGARES no celular</div>
+      </div>
+      <div class="demo-info">
+        <div class="box" style="margin-bottom:12px"><div class="lab">API (HTTP API + Cognito)</div><div class="val ink">/api/* · JWT obrigatório em todas as rotas</div></div>
+        <div class="demo-row"><span class="demo-ico">👤</span><div><b>Solicitante</b> — cria uma reserva e vê o conflito ser bloqueado na grade.</div></div>
+        <div class="demo-row"><span class="demo-ico">🏢</span><div><b>Atendente</b> — vê as reservas do seu setor e exporta o relatório (CSV/PDF).</div></div>
+        <div class="demo-row"><span class="demo-ico aws">🤖</span><div><b>Assistente</b> — pede um horário em linguagem natural e recebe a proposta.</div></div>
+      </div>
     </div>
     <p class="foot-note">Roteiro de 90s: login → reserva com conflito → notificação do setor → painel do atendente.</p>
   </section>
