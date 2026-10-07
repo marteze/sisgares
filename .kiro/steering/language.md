@@ -1,0 +1,1 @@
+Sempre gere documentação, requisitos, docuumentos de design e comentários de código em português - Brasil.
