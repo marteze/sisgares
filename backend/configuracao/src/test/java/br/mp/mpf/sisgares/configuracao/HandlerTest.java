@@ -152,6 +152,24 @@ class HandlerTest {
     }
 
     @Test
+    void faixaGlobalComMinimoPosteriorAoMaximoResponde422() { // Req. 8.3
+        APIGatewayV2HTTPResponse r = handler(false).handleRequest(
+                evento("PUT", "Administrador", corpo(60, "20:00", "07:00", null)), null);
+        assertThat(r.getStatusCode()).isEqualTo(422);
+        assertThat(r.getBody()).contains(ValidadorConfiguracao.CONFIG_FAIXA_INVALIDA);
+        assertThat(armazem.atual).isNull();
+    }
+
+    @Test
+    void snpUrlSemHttpsResponde422ForaDoModoLocal() { // Req. 8.5
+        APIGatewayV2HTTPResponse r = handler(false).handleRequest(
+                evento("PUT", "Administrador", corpo(60, "07:00", "20:00", "http://snp.exemplo.gov.br")), null);
+        assertThat(r.getStatusCode()).isEqualTo(422);
+        assertThat(r.getBody()).contains(ValidadorConfiguracao.CONFIG_SNP_URL_INVALIDA);
+        assertThat(armazem.atual).isNull();
+    }
+
+    @Test
     void httpAceitoApenasNoModoLocal() {
         APIGatewayV2HTTPResponse r = handler(true).handleRequest(
                 evento("PUT", "Administrador", corpo(60, "07:00", "20:00", "http://localhost:4010")), null);
