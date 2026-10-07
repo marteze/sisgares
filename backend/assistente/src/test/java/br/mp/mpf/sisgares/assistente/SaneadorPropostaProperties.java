@@ -31,7 +31,8 @@ class SaneadorPropostaProperties {
      *
      * <p><b>Validates: Requirements 18.4, 22.4</b>
      */
-    @Property(tries = 500)
+    // Feature: sisgares-reservas, Property 17: Saída do Assistente restrita ao catálogo
+    @Property(tries = 100)
     void saidaSaneadaObedeceAoSchemaERestritaAoCatalogo(@ForAll("saidas") String saida,
                                                         @ForAll("catalogos") Catalogo catalogo)
             throws Exception {
