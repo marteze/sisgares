@@ -116,6 +116,19 @@
     .no.management .svc { color: var(--management); }
     .no.ator { border-left-color: var(--aws-navy); background: #eef1f5; }
     .no.ator .svc { color: var(--aws-navy); }
+    .no.scm { border-left-color: #24292f; }
+    .no.scm .svc { color: #24292f; }
+
+    .nota {
+      font-size: 0.78rem;
+      color: var(--muted);
+      background: #fff8e6;
+      border: 1px solid #ffe3a3;
+      border-radius: 8px;
+      padding: 8px 12px;
+      margin-top: 10px;
+      flex-basis: 100%;
+    }
 
     /* layout em faixas */
     .faixa { grid-column: 1 / -1; }
@@ -186,6 +199,36 @@
     </div>
 
     <div class="diagrama">
+
+      <!-- Camada: origem do código e provisionamento -->
+      <div class="faixa"><h2>Origem do código e provisionamento</h2></div>
+
+      <div class="grupo" style="grid-column: 1 / -1;">
+        <span class="titulo-grupo">Repositório e deploy (CDK)</span>
+        <div class="conteudo">
+          <div class="no scm">
+            <div class="svc">GitHub</div>
+            <div class="nome">github.com/marteze/sisgares</div>
+            <div class="desc">Código-fonte · branch main · backend, infra (CDK) e frontend</div>
+          </div>
+          <div class="no management">
+            <div class="svc">AWS CDK (Java)</div>
+            <div class="nome">cdk deploy</div>
+            <div class="desc">Provisiona as 5 stacks em us-east-1 (profile hackaton)</div>
+          </div>
+          <div class="no network">
+            <div class="svc">CloudFormation</div>
+            <div class="nome">Stacks</div>
+            <div class="desc">Seguranca · Dados · Api · Eventos · Front</div>
+          </div>
+          <p class="nota">
+            Observação: o deploy é executado via CDK a partir do ambiente do desenvolvedor.
+            O repositório ainda não possui CI/CD automatizado (sem <span class="tag">.github/workflows</span>).
+          </p>
+        </div>
+      </div>
+
+      <div class="seta">⬇ <small>recursos criados nas stacks AWS</small></div>
 
       <!-- Camada: usuário e entrega -->
       <div class="faixa"><h2>Usuário e entrega de conteúdo</h2></div>
@@ -397,7 +440,7 @@
   </main>
 
   <footer>
-    Diagrama gerado a partir de <span class="tag">docs/arquitetura.md</span> · SISGARES · dados em repouso cifrados por CMK, tráfego somente via TLS.
+    Diagrama gerado a partir de <span class="tag">docs/arquitetura.md</span> · código em <span class="tag">github.com/marteze/sisgares</span> · dados em repouso cifrados por CMK, tráfego somente via TLS.
   </footer>
 </body>
 </html>
