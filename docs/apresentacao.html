@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SISGARES — Apresentação (5 min)</title>
+<style>
+  :root{
+    --mpf:#0a3d62; --mpf2:#12507e; --aws:#ff9900; --aws2:#ec7211;
+    --ink:#0b1b2b; --muted:#64748b; --bg:#f1f5f9; --card:#ffffff;
+    --ok:#16a34a; --line:#e2e8f0; --accent:#2563eb;
+    --sombra:0 10px 40px rgba(10,61,98,.14);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:radial-gradient(1200px 800px at 15% -10%, #103b5e 0%, #071a2b 55%, #04101c 100%);
+    color:var(--ink); overflow:hidden;
+  }
+  /* ---- palco ---- */
+  .palco{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:36px}
+  .slide{
+    display:none; width:min(1100px,94vw); height:min(620px,86vh);
+    background:var(--card); border-radius:22px; box-shadow:var(--sombra);
+    padding:46px 54px; position:relative; overflow:hidden;
+    animation:entra .45s cubic-bezier(.2,.7,.2,1);
+  }
+  .slide.ativo{display:flex;flex-direction:column}
+  @keyframes entra{from{opacity:0;transform:translateY(14px) scale(.99)}to{opacity:1;transform:none}}
+  .slide::before{content:"";position:absolute;left:0;top:0;bottom:0;width:8px;
+    background:linear-gradient(180deg,var(--mpf),var(--aws))}
+  /* ---- cabeçalho de slide ---- */
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:.74rem;font-weight:700;
+    letter-spacing:.14em;text-transform:uppercase;color:var(--mpf2)}
+  .eyebrow .dot{width:8px;height:8px;border-radius:50%;background:var(--aws)}
+  h1{font-size:2.5rem;line-height:1.08;margin:14px 0 6px;color:var(--ink);letter-spacing:-.5px}
+  h2{font-size:1.95rem;line-height:1.12;margin:10px 0 18px;color:var(--ink);letter-spacing:-.4px}
+  .sub{color:var(--muted);font-size:1.05rem;max-width:60ch}
+  p{line-height:1.5}
+  /* ---- capa ---- */
+  .capa{justify-content:center;background:
+     radial-gradient(900px 500px at 90% 10%, rgba(255,153,0,.10), transparent 60%),var(--card)}
+  .capa .marca{font-size:4.2rem;font-weight:800;letter-spacing:-2px;
+    background:linear-gradient(90deg,var(--mpf),var(--aws2));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .capa .lema{font-size:1.4rem;color:var(--ink);margin-top:6px;font-weight:600}
+  .capa .org{margin-top:26px;display:flex;gap:10px;flex-wrap:wrap}
+  .chip{display:inline-flex;align-items:center;gap:7px;background:var(--bg);border:1px solid var(--line);
+    border-radius:999px;padding:8px 15px;font-size:.9rem;font-weight:600;color:var(--mpf2)}
+  .chip.aws{color:var(--aws2);border-color:#ffe3b0;background:#fff8ec}
+  /* ---- grids ---- */
+  .cols{display:grid;gap:18px;margin-top:6px}
+  .c2{grid-template-columns:1fr 1fr}
+  .c3{grid-template-columns:repeat(3,1fr)}
+  .c4{grid-template-columns:repeat(4,1fr)}
+  .card{background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:18px 18px}
+  .card h3{font-size:1.02rem;color:var(--mpf2);margin-bottom:7px;display:flex;align-items:center;gap:8px}
+  .card p{font-size:.92rem;color:#334155}
+  .ico{width:30px;height:30px;flex:0 0 30px;border-radius:9px;display:grid;place-items:center;
+    background:linear-gradient(135deg,var(--mpf),var(--mpf2));color:#fff;font-size:1rem}
+  .ico.aws{background:linear-gradient(135deg,var(--aws),var(--aws2))}
+  /* ---- lista problema/regra ---- */
+  ul.lim{list-style:none;display:grid;gap:11px;margin-top:4px}
+  ul.lim li{display:flex;gap:11px;align-items:flex-start;font-size:1.02rem;color:#1e293b}
+  ul.lim li b{color:var(--ink)}
+  .mk{flex:0 0 24px;height:24px;border-radius:7px;background:#fde8ea;color:#c0392b;display:grid;place-items:center;font-weight:800;font-size:.8rem}
+  .mk.ok{background:#dcfce7;color:#15803d}
+  /* ---- métricas ---- */
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:10px}
+  .kpi{background:linear-gradient(160deg,#0a3d62,#12507e);color:#fff;border-radius:16px;padding:22px 18px;text-align:center}
+  .kpi .n{font-size:2.6rem;font-weight:800;letter-spacing:-1px;line-height:1}
+  .kpi .n .u{font-size:1rem;opacity:.8;font-weight:600}
+  .kpi .l{font-size:.84rem;opacity:.9;margin-top:7px}
+  .kpi.aws{background:linear-gradient(160deg,#ec7211,#ff9900)}
+  /* ---- diagrama fluxo ---- */
+  .flow{display:flex;align-items:stretch;gap:10px;margin-top:14px;flex-wrap:wrap}
+  .node{flex:1;min-width:120px;background:var(--bg);border:1px solid var(--line);border-radius:12px;
+    padding:13px 12px;text-align:center}
+  .node .t{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-weight:700}
+  .node .s{font-size:.98rem;font-weight:700;color:var(--mpf2);margin-top:3px}
+  .node.a{border-color:#ffe3b0;background:#fff8ec}.node.a .s{color:var(--aws2)}
+  .arrow{display:grid;place-items:center;color:var(--aws2);font-size:1.4rem;font-weight:800}
+  .legenda{margin-top:16px;font-size:.9rem;color:#334155;background:#fff8e6;border:1px solid #ffe3a3;border-radius:10px;padding:11px 14px}
+  /* ---- segurança badges ---- */
+  .seg{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:8px}
+  .seg .b{display:flex;gap:11px;align-items:center;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:13px 15px}
+  .seg .b .k{font-weight:700;color:var(--mpf2);font-size:.98rem}
+  .seg .b .d{font-size:.86rem;color:#475569}
+  /* ---- links/estado final ---- */
+  .live{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:12px}
+  .live a,.live .box{display:block;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:15px 16px;text-decoration:none}
+  .live .lab{font-size:.74rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:700}
+  .live .val{font-size:1.02rem;color:var(--accent);font-weight:700;margin-top:3px;word-break:break-all}
+  .live .val.ink{color:var(--ink)}
+  .foot-note{margin-top:auto;font-size:.86rem;color:var(--muted);padding-top:14px}
+  /* ---- rodapé/navegação ---- */
+  .hud{position:fixed;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:space-between;
+    padding:14px 26px;color:#cbd8e6;font-size:.82rem}
+  .hud .marca-min{font-weight:800;letter-spacing:.5px;color:#fff;opacity:.9}
+  .nav{display:flex;align-items:center;gap:10px}
+  .nav button{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.2);
+    border-radius:9px;width:38px;height:38px;font-size:1.1rem;cursor:pointer;transition:.15s}
+  .nav button:hover{background:rgba(255,255,255,.25)}
+  .nav .cont{min-width:58px;text-align:center;font-variant-numeric:tabular-nums}
+  .barra{position:fixed;top:0;left:0;height:4px;background:linear-gradient(90deg,var(--mpf),var(--aws));transition:width .35s;z-index:10}
+  .tempo{position:fixed;top:12px;right:18px;background:rgba(7,26,43,.6);border:1px solid rgba(255,255,255,.15);
+    color:#fff;border-radius:999px;padding:6px 14px;font-size:.82rem;font-variant-numeric:tabular-nums;cursor:pointer}
+  .dica{position:fixed;top:12px;left:18px;color:#9fb6cc;font-size:.74rem}
+  /* ---- equipe ---- */
+  .time{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:14px}
+  .membro{display:flex;align-items:center;gap:13px;background:var(--bg);border:1px solid var(--line);
+    border-radius:14px;padding:13px 16px;transition:.2s}
+  .membro:hover{transform:translateY(-3px);box-shadow:0 8px 22px rgba(10,61,98,.12);border-color:#cfe0ef}
+  .avatar{flex:0 0 46px;width:46px;height:46px;border-radius:50%;display:grid;place-items:center;
+    color:#fff;font-weight:800;font-size:1.05rem;letter-spacing:.5px;
+    background:linear-gradient(135deg,var(--mpf),var(--mpf2));box-shadow:0 4px 10px rgba(10,61,98,.25)}
+  .membro:nth-child(2n) .avatar{background:linear-gradient(135deg,var(--aws),var(--aws2))}
+  .membro .nome-m{font-weight:700;color:var(--ink);font-size:1rem;line-height:1.2}
+  .membro .papel-m{font-size:.78rem;color:var(--muted);margin-top:2px}
+  .time-cab{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+  .time-cab .nk{font-size:3.1rem;font-weight:800;letter-spacing:-1px;
+    background:linear-gradient(90deg,var(--mpf),var(--aws2));-webkit-background-clip:text;background-clip:text;color:transparent}
+  /* ---- gráficos ---- */
+  .graf-wrap{display:grid;grid-template-columns:1.05fr 1fr;gap:22px;align-items:center;margin-top:8px}
+  .graf-card{background:var(--bg);border:1px solid var(--line);border-radius:16px;padding:18px 20px}
+  .graf-card .tt{font-size:.82rem;font-weight:700;color:var(--mpf2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px}
+  .legs{display:grid;gap:9px;margin-top:4px}
+  .leg{display:flex;align-items:center;gap:9px;font-size:.9rem;color:#1e293b}
+  .leg .sw{width:13px;height:13px;border-radius:4px;flex:0 0 13px}
+  .leg b{margin-left:auto;color:var(--ink);font-variant-numeric:tabular-nums}
+  /* barras horizontais */
+  .bars{display:grid;gap:12px;margin-top:4px}
+  .bar-row{display:grid;grid-template-columns:120px 1fr 44px;align-items:center;gap:10px;font-size:.88rem}
+  .bar-row .nome-b{color:#334155;font-weight:600;text-align:right}
+  .track{height:16px;background:#e6edf4;border-radius:8px;overflow:hidden}
+  .fill{height:100%;border-radius:8px;background:linear-gradient(90deg,var(--mpf),var(--mpf2));
+    width:0;transition:width 1s cubic-bezier(.2,.8,.2,1)}
+  .fill.a{background:linear-gradient(90deg,var(--aws),var(--aws2))}
+  .bar-row .val-b{font-weight:800;color:var(--mpf2);font-variant-numeric:tabular-nums}
+  .donut-c{display:grid;place-items:center}
+  .donut-c .mid{position:relative;width:200px;height:200px}
+  .donut-c .mid .center{position:absolute;inset:0;display:grid;place-content:center;text-align:center}
+  .donut-c .center .big{font-size:2rem;font-weight:800;color:var(--ink);line-height:1}
+  .donut-c .center .small{font-size:.76rem;color:var(--muted);margin-top:3px}
+  @media (max-width:560px){.c2,.c3,.c4,.kpis,.seg,.live,.time,.graf-wrap{grid-template-columns:1fr}.slide{padding:30px 26px}h1{font-size:1.9rem}}
+</style>
+</head>
+<body>
+<div class="barra" id="barra"></div>
+<div class="dica">← → navega · F tela cheia · T cronômetro</div>
+<div class="tempo" id="tempo" title="Clique para iniciar/pausar">⏱ 05:00</div>
+
+<div class="palco">
+
+  <!-- 1. CAPA -->
+  <section class="slide capa ativo">
+    <div class="eyebrow"><span class="dot"></span>Hackathon MPF &amp; AWS 2026</div>
+    <div class="marca">SISGARES</div>
+    <div class="lema">Gestão de Reservas de Ambientes e Recursos</div>
+    <p class="sub" style="margin-top:14px">Plataforma serverless e orientada a eventos para o MPF solicitar e gerenciar reservas de salas, auditórios, recursos e serviços — sem conflitos de horário, com notificação automática e segurança por perfil.</p>
+    <div class="org">
+      <span class="chip">Java 21 · Angular</span>
+      <span class="chip aws">AWS Serverless</span>
+      <span class="chip">IaC em AWS CDK</span>
+      <span class="chip">Construído com Kiro</span>
+    </div>
+  </section>
+
+  <!-- 2. EQUIPE -->
+  <section class="slide">
+    <div class="eyebrow"><span class="dot"></span>Quem faz acontecer</div>
+    <div class="time-cab">
+      <span class="nk">Equipe NIKO</span>
+      <span class="sub" style="font-size:1rem">Seis pessoas, uma entrega serverless de ponta a ponta.</span>
+    </div>
+    <div class="time">
+      <div class="membro"><span class="avatar">DG</span><div><div class="nome-m">Daniel Guimarães</div><div class="papel-m">Equipe NIKO</div></div></div>
+      <div class="membro"><span class="avatar">AL</span><div><div class="nome-m">Andre Luiz</div><div class="papel-m">Equipe NIKO</div></div></div>
+      <div class="membro"><span class="avatar">CA</span><div><div class="nome-m">Carlos Almeida</div><div class="papel-m">Equipe NIKO</div></div></div>
+      <div class="membro"><span class="avatar">FS</span><div><div class="nome-m">Frederico Sório</div><div class="papel-m">Equipe NIKO</div></div></div>
+      <div class="membro"><span class="avatar">LS</span><div><div class="nome-m">Luciano Santos</div><div class="papel-m">Equipe NIKO</div></div></div>
+      <div class="membro"><span class="avatar">RM</span><div><div class="nome-m">Rafael Marteze</div><div class="papel-m">Equipe NIKO</div></div></div>
+    </div>
+    <p class="foot-note">Hackathon MPF &amp; AWS 2026 · projeto SISGARES</p>
+  </section>
+
+  <!-- 3. PROBLEMA -->
+  <section class="slide">
+    <div class="eyebrow"><span class="dot"></span>O problema</div>
+    <h2>Reservar ambiente hoje é manual e dá conflito</h2>
+    <ul class="lim">
+      <li><span class="mk">!</span><div><b>Choque de horário</b> entre reservas, inclusive entre sala e auditório que a contém — sem ninguém perceber a tempo.</div></li>
+      <li><span class="mk">!</span><div><b>Recurso limitado estourado:</b> dois eventos pedem os mesmos projetores no mesmo horário.</div></li>
+      <li><span class="mk">!</span><div><b>Setores não avisados:</b> manutenção e TI descobrem o pedido tarde demais.</div></li>
+      <li><span class="mk">!</span><div><b>Sem visão por perfil:</b> solicitante, atendente de setor e administrador enxergam tudo igual.</div></li>
+    </ul>
+    <p class="foot-note">O SISGARES resolve cada um desses pontos aplicando 13 regras de negócio (RN1–RN13) no backend.</p>
+  </section>
+
+  <!-- 3. SOLUÇÃO / O QUE FAZ -->
+  <section class="slide">
+    <div class="eyebrow"><span class="dot"></span>A solução</div>
+    <h2>Uma reserva validada de ponta a ponta</h2>
+    <div class="cols c3">
+      <div class="card"><h3><span class="ico">⏱</span>Conflito &amp; margem</h3><p>Bloqueia sobreposição no mesmo ambiente e entre ambiente pai/filho, com margem de 30 min entre reservas.</p></div>
+      <div class="card"><h3><span class="ico">📦</span>Recursos limitados</h3><p>Soma das reservas nunca passa da quantidade disponível no período.</p></div>
+      <div class="card"><h3><span class="ico">🗓</span>Grade visual</h3><p>Faixa de horários em blocos de 30 min: livre, ocupado, margem, sem antecedência.</p></div>
+      <div class="card"><h3><span class="ico aws">✉️</span>Notificação</h3><p>Setores envolvidos avisados por e-mail; pedido gerado no SNP (simulado).</p></div>
+      <div class="card"><h3><span class="ico aws">🤖</span>Assistente (Bedrock)</h3><p>Sugere horários e monta a proposta de reserva em linguagem natural.</p></div>
+      <div class="card"><h3><span class="ico">👥</span>Painéis por perfil</h3><p>Solicitante, Setor_Atendente e Administrador — cada um com sua visão.</p></div>
+    </div>
+  </section>
+
+  <!-- 4. ARQUITETURA -->
+  <section class="slide">
+    <div class="eyebrow"><span class="dot"></span>Arquitetura AWS — 100% serverless</div>
+    <h2>Do navegador ao evento, sem servidor para gerenciar</h2>
+    <div class="flow">
+      <div class="node"><div class="t">Frontend</div><div class="s">CloudFront + S3<br>Angular</div></div>
+      <div class="arrow">→</div>
+      <div class="node a"><div class="t">Borda</div><div class="s">HTTP API +<br>Cognito (JWT)</div></div>
+      <div class="arrow">→</div>
+      <div class="node a"><div class="t">Compute</div><div class="s">Lambdas<br>Java 21</div></div>
+      <div class="arrow">→</div>
+      <div class="node"><div class="t">Dados</div><div class="s">DynamoDB<br>single-table</div></div>
+    </div>
+    <div class="flow">
+      <div class="node a" style="flex:0 0 100%"><div class="t">Orientado a eventos</div><div class="s">Reserva → OUTBOX (mesma transação) → EventBridge → Step Functions → Notificador &amp; Cliente SNP · DLQ + republicador a cada 1 min</div></div>
+    </div>
+    <div class="legenda">Autorização por <b>Amazon Verified Permissions (Cedar)</b> · dados cifrados por <b>KMS</b> · tráfego só por <b>TLS</b> · tudo provisionado em <b>AWS CDK (Java)</b> — 5 stacks.</div>
+  </section>
+
+  <!-- 5. EVENTOS / CONSISTÊNCIA -->
+  <section class="slide">
+    <div class="eyebrow"><span class="dot"></span>Consistência &amp; eventos</div>
+    <h2>Padrão outbox: nunca perde um evento</h2>
+    <div class="cols c2">
+      <div class="card"><h3><span class="ico">1</span>Grava em transação</h3><p>A reserva e o evento são escritos juntos na mesma <b>TransactWriteItems</b> do DynamoDB. Ou grava tudo, ou nada.</p></div>
+      <div class="card"><h3><span class="ico aws">2</span>Publica e limpa</h3><p>Após o commit, publica no <b>EventBridge</b> e remove do outbox. Se a publicação falhar, o republicador reenvia.</p></div>
+      <div class="card"><h3><span class="ico aws">3</span>Processa em paralelo</h3><p><b>Step Functions</b> dispara Notificador (SES) e Cliente SNP ao mesmo tempo; falhas vão para a <b>DLQ</b>.</p></div>
+      <div class="card"><h3><span class="ico">4</span>Concorrência (RN7)</h3><p>Itens de controle de versão por ambiente/recurso evitam reserva dupla — retorna <b>409</b> em disputa.</p></div>
+    </div>
+    <p class="foot-note">O evento carrega só ID, versão e tipo — <b>sem dados pessoais</b>, como exige a LGPD.</p>
+  </section>
+
+  <!-- 6. SEGURANÇA / LGPD -->
+  <section class="slide">
+    <div class="eyebrow"><span class="dot"></span>Segurança &amp; LGPD</div>
+    <h2>Seguro por padrão, do IAM ao log</h2>
+    <div class="seg">
+      <div class="b"><span class="ico">🔐</span><div><div class="k">Cognito + Verified Permissions</div><div class="d">Autenticação e autorização Cedar no backend; o front só esconde opções.</div></div></div>
+      <div class="b"><span class="ico aws">🗝</span><div><div class="k">KMS + TLS</div><div class="d">Dados cifrados em repouso (CMK) e em trânsito. CloudTrail audita o uso.</div></div></div>
+      <div class="b"><span class="ico">👤</span><div><div class="k">IAM de privilégio mínimo</div><div class="d">Cada Lambda só com as ações e ARNs que usa — sem <code>*</code> em escrita.</div></div></div>
+      <div class="b"><span class="ico aws">🙈</span><div><div class="k">Logs sem dado pessoal</div><div class="d">CPF, e-mail e telefone mascarados; HTML do usuário sempre escapado.</div></div></div>
+    </div>
+    <p class="foot-note">Somente dados fictícios no repositório (domínios <code>exemplo.gov.br</code>, CPFs gerados).</p>
+  </section>
+
+  <!-- 7. KIRO / INOVAÇÃO -->
+  <section class="slide">
+    <div class="eyebrow"><span class="dot"></span>Como foi construído — Inovação</div>
+    <h2>Spec-driven com Kiro</h2>
+    <div class="cols c3">
+      <div class="card"><h3><span class="ico">📋</span>Specs</h3><p>Requisitos (23 reqs), design e 27 tarefas versionados em <code>.kiro/specs/</code>. O código nasce da especificação.</p></div>
+      <div class="card"><h3><span class="ico">🧭</span>Steering</h3><p>Regras do time sempre em contexto: idioma, arquitetura, segurança/LGPD, Java e Angular.</p></div>
+      <div class="card"><h3><span class="ico">🪝</span>Hooks</h3><p>Automação: testa o domínio ao salvar, varre segredos/PII e lembra de atualizar o OpenAPI.</p></div>
+    </div>
+    <div class="legenda">Resultado: decisões de arquitetura, regras de negócio e padrões ficam rastreáveis — o repositório conta a própria história.</div>
+  </section>
+
+  <!-- 8b. GRÁFICOS DE COBERTURA -->
+  <section class="slide">
+    <div class="eyebrow"><span class="dot"></span>Cobertura &amp; escopo</div>
+    <h2>Requisitos atendidos e stacks provisionadas</h2>
+    <div class="graf-wrap">
+      <div class="graf-card donut-c">
+        <div class="tt" style="text-align:center;width:100%">Requisitos obrigatórios</div>
+        <div class="mid">
+          <svg viewBox="0 0 42 42" width="200" height="200" id="donutReqs" aria-hidden="true"></svg>
+          <div class="center"><div class="big">100%</div><div class="small">23 de 23 reqs</div></div>
+        </div>
+      </div>
+      <div class="graf-card">
+        <div class="tt">Recursos por stack (deploy real)</div>
+        <div class="bars" id="barsStacks"></div>
+      </div>
+    </div>
+    <div class="legs" style="display:flex;gap:22px;margin-top:16px;flex-wrap:wrap">
+      <span class="leg"><span class="sw" style="background:var(--mpf)"></span>13 regras de negócio (RN1–RN13)</span>
+      <span class="leg"><span class="sw" style="background:var(--aws)"></span>5 stacks · ~230 recursos AWS</span>
+      <span class="leg"><span class="sw" style="background:var(--ok)"></span>Tarefas obrigatórias concluídas</span>
+    </div>
+  </section>
+
+  <!-- 9. NÚMEROS -->
+  <section class="slide">
+    <div class="eyebrow"><span class="dot"></span>Entrega em números</div>
+    <h2>O que está pronto</h2>
+    <div class="kpis">
+      <div class="kpi"><div class="n">5</div><div class="l">stacks CDK no ar</div></div>
+      <div class="kpi aws"><div class="n">10</div><div class="l">módulos Maven (Java 21)</div></div>
+      <div class="kpi"><div class="n">110</div><div class="l">testes backend · 0 falhas</div></div>
+      <div class="kpi aws"><div class="n">2.169</div><div class="l">itens de seed carregados</div></div>
+    </div>
+    <div class="graf-wrap" style="margin-top:20px">
+      <div class="graf-card">
+        <div class="tt">Testes do backend por módulo</div>
+        <div class="bars" id="barsTestes"></div>
+      </div>
+      <div class="graf-card donut-c">
+        <div class="tt" style="text-align:center;width:100%">Distribuição dos 110 testes</div>
+        <div class="mid">
+          <svg viewBox="0 0 42 42" width="200" height="200" id="donutTestes" aria-hidden="true"></svg>
+          <div class="center"><div class="big">110</div><div class="small">testes · 0 falhas</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10. DEMO AO VIVO -->
+  <section class="slide">
+    <div class="eyebrow"><span class="dot"></span>Demonstração ao vivo</div>
+    <h2>No ar na AWS, agora</h2>
+    <div class="live">
+      <div class="box"><div class="lab">Aplicação (CloudFront)</div><div class="val">d2tz68zpw6i1uf.cloudfront.net</div></div>
+      <div class="box"><div class="lab">API (HTTP API + Cognito)</div><div class="val ink">/api/* · JWT obrigatório</div></div>
+    </div>
+    <div class="cols c3" style="margin-top:16px">
+      <div class="card"><h3><span class="ico">👤</span>Solicitante</h3><p>Cria uma reserva e vê o conflito ser bloqueado em tempo real na grade.</p></div>
+      <div class="card"><h3><span class="ico">🏢</span>Atendente</h3><p>Vê as reservas do seu setor e exporta o relatório (CSV/PDF).</p></div>
+      <div class="card"><h3><span class="ico aws">🤖</span>Assistente</h3><p>Pede um horário em linguagem natural e recebe a proposta pronta.</p></div>
+    </div>
+    <p class="foot-note">Roteiro de 90s: login → reserva com conflito → notificação do setor → painel do atendente.</p>
+  </section>
+
+  <!-- 11. FECHAMENTO -->
+  <section class="slide capa">
+    <div class="eyebrow"><span class="dot"></span>Obrigado</div>
+    <div class="marca" style="font-size:3.4rem">SISGARES</div>
+    <p class="sub" style="margin-top:12px;font-size:1.15rem">Serverless, orientado a eventos, seguro por padrão e construído com especificação viva no Kiro. Pronto para escalar para todas as unidades do MPF.</p>
+    <div class="org">
+      <span class="chip">Equipe NIKO</span>
+      <span class="chip">github.com/marteze/sisgares</span>
+      <span class="chip aws">AWS · us-east-1</span>
+    </div>
+    <p class="foot-note">Hackathon MPF &amp; AWS 2026 · Perguntas?</p>
+  </section>
+
+</div>
+
+<div class="hud">
+  <div class="marca-min">SISGARES</div>
+  <div class="nav">
+    <button id="prev" aria-label="Slide anterior">‹</button>
+    <span class="cont"><span id="atual">1</span> / <span id="total">10</span></span>
+    <button id="next" aria-label="Próximo slide">›</button>
+  </div>
+</div>
+
+<script>
+  const slides=[...document.querySelectorAll('.slide')];
+  let i=0; const total=slides.length;
+  document.getElementById('total').textContent=total;
+  function mostra(n){
+    i=Math.max(0,Math.min(total-1,n));
+    slides.forEach((s,k)=>s.classList.toggle('ativo',k===i));
+    document.getElementById('atual').textContent=i+1;
+    document.getElementById('barra').style.width=((i+1)/total*100)+'%';
+    // reanima as barras ao entrar nos slides de gráfico
+    const ativo=slides[i];
+    if(ativo.querySelector('#barsStacks')) anima('barsStacks');
+    if(ativo.querySelector('#barsTestes')) anima('barsTestes');
+  }
+  document.getElementById('next').onclick=()=>mostra(i+1);
+  document.getElementById('prev').onclick=()=>mostra(i-1);
+
+  /* ===== Gráficos (SVG puro, sem dependências) ===== */
+  const PALETA=['#0a3d62','#12507e','#2b6cb0','#4b94c8','#ff9900','#ec7211','#c0560f','#16a34a'];
+  // Donut: segmentos a partir de pares [rótulo, valor]
+  function donut(svgId, dados){
+    const svg=document.getElementById(svgId); if(!svg) return;
+    const total=dados.reduce((a,d)=>a+d[1],0); const R=15.915; let off=25; // começa no topo
+    svg.innerHTML='<circle cx="21" cy="21" r="'+R+'" fill="none" stroke="#e6edf4" stroke-width="6"></circle>';
+    dados.forEach((d,k)=>{
+      const pct=d[1]/total*100;
+      const c=document.createElementNS('http://www.w3.org/2000/svg','circle');
+      c.setAttribute('cx',21); c.setAttribute('cy',21); c.setAttribute('r',R);
+      c.setAttribute('fill','none'); c.setAttribute('stroke',PALETA[k%PALETA.length]);
+      c.setAttribute('stroke-width',6); c.setAttribute('stroke-dasharray','0 100');
+      c.setAttribute('stroke-dashoffset',off); c.setAttribute('transform','rotate(-90 21 21)');
+      c.style.transition='stroke-dasharray 1s cubic-bezier(.2,.8,.2,1)';
+      svg.appendChild(c);
+      requestAnimationFrame(()=>{setTimeout(()=>c.setAttribute('stroke-dasharray',pct+' '+(100-pct)),60*k+80);});
+      off-=pct;
+    });
+  }
+  // Barras horizontais
+  function barras(elId, dados, max){
+    const el=document.getElementById(elId); if(!el) return;
+    const mx=max||Math.max(...dados.map(d=>d[1]));
+    el.innerHTML=dados.map((d,k)=>
+      '<div class="bar-row"><span class="nome-b">'+d[0]+'</span>'+
+      '<div class="track"><div class="fill'+(k%2?' a':'')+'" data-w="'+(d[1]/mx*100)+'"></div></div>'+
+      '<span class="val-b">'+d[1]+'</span></div>').join('');
+  }
+  function anima(elId){
+    document.querySelectorAll('#'+elId+' .fill').forEach((f,k)=>
+      setTimeout(()=>f.style.width=f.dataset.w+'%',70*k+60));
+  }
+
+  const testesMod=[['comum-aws',29],['reservas',23],['catalogo',12],['eventos',12],['assistente',11],['paineis',11],['exportacao',10],['configuracao',2]];
+  const stacksRes=[['Api',90],['Eventos',43],['Front',22],['Dados',19],['Seguranca',12]];
+  donut('donutTestes',testesMod);
+  donut('donutReqs',[['Atendidos',23],['Pendentes',0.0001]]);
+  barras('barsTestes',testesMod,29);
+  barras('barsStacks',stacksRes,90);
+
+  document.addEventListener('keydown',e=>{
+    if(e.key==='ArrowRight'||e.key==='PageDown'||e.key===' ')mostra(i+1);
+    else if(e.key==='ArrowLeft'||e.key==='PageUp')mostra(i-1);
+    else if(e.key==='Home')mostra(0);
+    else if(e.key==='End')mostra(total-1);
+    else if(e.key.toLowerCase()==='f'){document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();}
+    else if(e.key.toLowerCase()==='t')alterna();
+  });
+  // cronômetro regressivo de 5 min
+  let restante=300, rodando=false, timer=null;
+  const elTempo=document.getElementById('tempo');
+  function pinta(){
+    const m=String(Math.floor(Math.abs(restante)/60)).padStart(2,'0');
+    const s=String(Math.abs(restante)%60).padStart(2,'0');
+    elTempo.textContent=(restante<0?'⏱ -':'⏱ ')+m+':'+s;
+    elTempo.style.color=restante<=30?'#ffb4b4':'#fff';
+  }
+  function alterna(){
+    rodando=!rodando;
+    if(rodando){timer=setInterval(()=>{restante--;pinta();},1000);}
+    else{clearInterval(timer);}
+  }
+  elTempo.onclick=alterna;
+  pinta(); mostra(0);
+</script>
+</body>
+</html>
