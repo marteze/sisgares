@@ -135,7 +135,7 @@ Implementação incremental em Java 21 (Maven multimódulo), Angular e AWS CDK (
   - [x] 9.5 Implementar logs JSON (Powertools) com mascaramento, `correlationId` e mapeamento de erros HTTP
     - Formato `{"erros":[...],"correlationId"}` para 400/401/403/404/409/422/500, sem stack trace
     - _Requirements: 1.6, 6.7, 6.8_
-  - [ ]* 9.6 Escrever testes de integração com DynamoDB Local (Testcontainers)
+  - [x]* 9.6 Escrever testes de integração com DynamoDB Local (Testcontainers)
     - RN7: duas gravações concorrentes, uma recebe 409; outbox gravado na mesma transação; verificação de ausência de Scan
     - _Requirements: 3.9, 10.6, 10.7, 22.5_
 
@@ -149,10 +149,10 @@ Implementação incremental em Java 21 (Maven multimódulo), Angular e AWS CDK (
   - [x] 10.3 Implementar publicação de Evento_Reserva e republicador de outbox
     - `PutEvents` após commit e remoção do `OUTBOX`; Lambda agendada (1 min) republica pendentes; evento só com IDs, versão e tipo
     - _Requirements: 2.3, 2.8_
-  - [ ]* 10.4 Escrever teste de propriedade do evento sem dados pessoais
+  - [x]* 10.4 Escrever teste de propriedade do evento sem dados pessoais
     - **Property 15: Mascaramento de logs e evento sem dados pessoais** (Evento_Reserva serializado)
     - **Validates: Requirements 2.3, 6.7**
-  - [ ]* 10.5 Escrever testes do handler com dublês (EventBridge, repositórios)
+  - [x]* 10.5 Escrever testes do handler com dublês (EventBridge, repositórios)
     - Códigos 201/409/422, todas as violações na resposta, formato de erro, falha de PutEvents → outbox
     - _Requirements: 1.6, 2.8, 22.6_
 
@@ -163,17 +163,17 @@ Implementação incremental em Java 21 (Maven multimódulo), Angular e AWS CDK (
   - [x] 11.2 Implementar `GET /paineis/atendente` (GSI2 para Atendente, GSI3 para Admin)
     - Cards por data ordenados por início, Recursos, Pedidos_SNP, indicador de cancelada
     - _Requirements: 16.2, 16.3, 16.4, 16.5, 16.6_
-  - [ ]* 11.3 Escrever testes dos handlers de painéis com repositórios em memória
+  - [x]* 11.3 Escrever testes dos handlers de painéis com repositórios em memória
     - _Requirements: 16.4, 16.5, 22.6_
 
 - [x] 12. Implementar o Importador_Seed
   - [x] 12.1 Implementar a Lambda de seed
     - Lê CSVs do S3 com LeitorCsv; cria Unidade_Macro "PR/CE", Configuração padrão (120 min, 07:00–20:00, endpoint SNP), usuários fictícios (≥ 3 Solicitantes), códigos SNP em ao menos um EREC; SOLI_QTD vazio conforme limitado; reservas determinísticas sem conflito ou Local_Proprio; ícones via ResolvedorIcone e `alt` de `imagens/descricoes.md`; gravação idempotente; relatório JSON no S3
     - _Requirements: 4.2, 4.5, 4.6, 4.7, 4.8, 4.9, 4.10, 4.11, 4.12, 4.14, 4.15, 4.16, 4.17_
-  - [ ]* 12.2 Escrever teste de propriedade da idempotência do seed
+  - [x]* 12.2 Escrever teste de propriedade da idempotência do seed
     - **Property 9: Idempotência do seed**
     - **Validates: Requirements 4.7, 4.12**
-  - [ ]* 12.3 Escrever testes unitários do seed com os CSVs de `data/`
+  - [x]* 12.3 Escrever testes unitários do seed com os CSVs de `data/`
     - IDs com ponto de milhar, linhas rejeitadas no relatório, ícones ambíguos/não encontrados
     - _Requirements: 4.10, 4.11, 22.11_
 
@@ -187,13 +187,13 @@ Implementação incremental em Java 21 (Maven multimódulo), Angular e AWS CDK (
   - [x] 14.2 Implementar o Cliente_SNP e a Lambda mock do SNP
     - Pedido por vínculo com código (na alteração, só vínculos novos); endpoint da Configuração; idempotência; registro de falha
     - _Requirements: 2.6, 14.1, 14.2, 14.3, 14.4, 14.5_
-  - [ ]* 14.3 Escrever teste de propriedade da idempotência dos eventos
+  - [x]* 14.3 Escrever teste de propriedade da idempotência dos eventos
     - **Property 10: Idempotência dos eventos**
     - **Validates: Requirements 2.6**
-  - [ ]* 14.4 Escrever teste de propriedade de destinatários e pedidos SNP
+  - [x]* 14.4 Escrever teste de propriedade de destinatários e pedidos SNP
     - **Property 11: Destinatários e pedidos SNP**
     - **Validates: Requirements 13.1, 14.1, 14.2, 14.4**
-  - [ ]* 14.5 Escrever testes de integração com DynamoDB Local
+  - [x]* 14.5 Escrever testes de integração com DynamoDB Local
     - RN10 setores notificados, RN11 Pedido_SNP só com código, entrega duplicada de evento; SES como dublê
     - _Requirements: 22.5, 22.6_
   - [x] 14.6 Definir no CDK `EventosStack`
@@ -274,7 +274,7 @@ Implementação incremental em Java 21 (Maven multimódulo), Angular e AWS CDK (
   - [x] 23.2 Implementar a Lambda de configuração
     - Antecedência 0–10080, faixas global/por unidade (mín < máx), URL do SNP `https://` (`http://` só local)
     - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5, 8.6_
-  - [ ]* 23.3 Escrever testes dos handlers de catálogo e configuração
+  - [x]* 23.3 Escrever testes dos handlers de catálogo e configuração
     - _Requirements: 7.3, 7.5, 7.8, 7.12, 8.3, 8.5_
   - [x] 23.4 Criar telas `/cadastros/*` e `/configuracao` no frontend
     - _Requirements: 7.1, 7.10, 8.1, 8.2, 8.4_
@@ -283,13 +283,13 @@ Implementação incremental em Java 21 (Maven multimódulo), Angular e AWS CDK (
   - [x] 24.1 Implementar a Lambda do Assistente_Reserva
     - Prompt só com descrição, data e catálogos permitidos; Guardrails; modelo por variável de ambiente; saneamento por JSON Schema e catálogo com `camposNaoPreenchidos`; timeout 10 s → 503
     - _Requirements: 18.1, 18.2, 18.3, 18.4, 18.6, 18.7, 18.8_
-  - [ ]* 24.2 Escrever teste de propriedade da saída do assistente
+  - [x]* 24.2 Escrever teste de propriedade da saída do assistente
     - **Property 17: Saída do Assistente restrita ao catálogo**
     - **Validates: Requirements 18.4, 22.4**
   - [x] 24.3 Implementar a Lambda de exportação
     - CSV UTF-8 com ";" (uma linha por Período) e PDF agrupado por data; mesmas regras de visibilidade do painel; S3 privado e URL pré-assinada de 5 min
     - _Requirements: 17.1, 17.2, 17.3_
-  - [ ]* 24.4 Escrever testes da exportação com dublê de S3 (round-trip do CSV exportado)
+  - [x]* 24.4 Escrever testes da exportação com dublê de S3 (round-trip do CSV exportado)
     - _Requirements: 17.4, 22.6_
   - [x] 24.5 Implementar métricas e alarmes
     - Métricas de reservas criadas, conflitos RN5/RN6/RN7 e falhas de Notificação/SNP; alarme da DLQ ≥ 1 com SNS; X-Ray no API Gateway e no Step Functions
